@@ -1,0 +1,85 @@
+services:
+  app:
+    build:
+      context: dev/toolbox/docker/php
+      dockerfile: Dockerfile
+      args:
+        PHP_VERSION: "8.3"
+    container_name: IJRPR-app
+    ports:
+      - "80:80"
+      - "5173:5173"
+    volumes:
+      - .:/var/www/html
+    env_file:
+      - .env
+    environment:
+      LARAVEL_SAIL: 1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - sail
+
+  db:
+    image: mariadb:10.6.21
+    container_name: IJRPR-db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: IJRPR
+      MYSQL_USER: IJRPR
+      MYSQL_PASSWORD: IJRPR
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - sail
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: IJRPR-phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: IJRPR
+      PMA_PASSWORD: IJRPR
+      UPLOAD_LIMIT: 300M
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sail
+
+  redis:
+    image: redis:alpine
+    container_name: IJRPR-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - sail
+
+networks:
+  sail:
+    driver: bridge
+
+volumes:
+  mariadb-data:
+  redis-data:

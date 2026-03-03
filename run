@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT_DIR"
+
+if [[ -f ".env" ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source ".env"
+  set +a
+fi
+
+COMPOSE_CMD="docker compose"
+if ! $COMPOSE_CMD version >/dev/null 2>&1; then
+  COMPOSE_CMD="docker-compose"
+fi
+
+cmd="${1:-}"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  ./run up                 Start all containers
+  ./run down               Stop all containers
+  ./run rebuild            Rebuild and start all containers
+  ./run ssh                Shell into app container
+  ./run db:import file.sql  Import SQL into database
+EOF
+}
+
+case "$cmd" in
+  up)
+    $COMPOSE_CMD up -d
+    ;;
+  down)
+    $COMPOSE_CMD down
+    ;;
+  rebuild)
+    $COMPOSE_CMD build --no-cache
+    $COMPOSE_CMD up -d
+    ;;
+  ssh)
+    $COMPOSE_CMD exec app bash
+    ;;
+  db:import)
+    file="${2:-}"
+    if [[ -z "$file" ]]; then
+      echo "Missing SQL file path."
+      usage
+      exit 1
+    fi
+    if [[ ! -f "$file" ]]; then
+      echo "SQL file not found: $file"
+      exit 1
+    fi
+    db_name="${DB_DATABASE:-pm}"
+    db_user="${DB_USERNAME:-pm}"
+    db_pass="${DB_PASSWORD:-pm}"
+    $COMPOSE_CMD exec -T db mysql -u"$db_user" -p"$db_pass" "$db_name" < "$file"
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+esac

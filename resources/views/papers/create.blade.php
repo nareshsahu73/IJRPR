@@ -18,33 +18,33 @@
         @csrf
 
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Title of Paper *</label>
-            <input type="text" name="title" value="{{ old('title') }}" required
+            <label class="block text-gray-700 mb-2">Paper Title *</label>
+            <input type="text" name="Title" value="{{ old('Title') }}" required
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            @error('title')
+            @error('Title')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Name of Author (Only Corresponding Author) *</label>
+            <label class="block text-gray-700 mb-2">Corresponding Author Name *</label>
             <p class="text-sm text-gray-600 mb-2">
-                [All author(s) and co-author(s) must have their <strong>full names</strong> clearly written in the MS Word file of the paper below Title of paper, which you are going to submit]
+                Only One Author Name is required. Name of all authors should be written on MS word file of Paper (Below Title of Paper). Only will get E-certificate
             </p>
-            <input type="text" name="corresponding_author_name" value="{{ old('corresponding_author_name') }}" required
+            <input type="text" name="author_name" value="{{ old('author_name') }}" required
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            @error('corresponding_author_name')
+            @error('author_name')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-                <label class="block text-gray-700 mb-2">Email Address *</label>
+                <label class="block text-gray-700 mb-2">Corresponding Author Email *</label>
                 <p class="text-sm text-gray-600 mb-2">The email address of the author submitting the paper (Corresponding Author)</p>
-                <input type="email" name="corresponding_author_email" value="{{ old('corresponding_author_email') }}" required
+                <input type="email" name="cer_author_name" value="{{ old('cer_author_name') }}" required
                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                @error('corresponding_author_email')
+                @error('cer_author_name')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
@@ -60,8 +60,7 @@
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Affiliation of Corresponding Author *</label>
-            <p class="text-sm text-gray-600 mb-2">Name of College/University/Company/ of Corresponding Author</p>
+            <label class="block text-gray-700 mb-2">Organization/Institute Name *</label>
             <input type="text" name="affiliation" value="{{ old('affiliation') }}" required
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             @error('affiliation')
@@ -69,37 +68,26 @@
             @enderror
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-                <label class="block text-gray-700 mb-2">Position/Post of Author *</label>
-                <select name="position" required
-                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">Choose</option>
-                    <option value="UG Student" {{ old('position') == 'UG Student' ? 'selected' : '' }}>UG Student</option>
-                    <option value="PG Student" {{ old('position') == 'PG Student' ? 'selected' : '' }}>PG Student</option>
-                    <option value="PhD Student" {{ old('position') == 'PhD Student' ? 'selected' : '' }}>PhD Student</option>
-                    <option value="Academic Person" {{ old('position') == 'Academic Person' ? 'selected' : '' }}>Academic Person</option>
-                    <option value="Industry Person" {{ old('position') == 'Industry Person' ? 'selected' : '' }}>Industry Person</option>
-                    <option value="Other" {{ old('position') == 'Other' ? 'selected' : '' }}>Other</option>
-                </select>
-                @error('position')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label class="block text-gray-700 mb-2">Country Name *</label>
-                <input type="text" name="country_name" value="{{ old('country_name') }}" required
-                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                @error('country_name')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Higher Qualification *</label>
+            <select name="position" required
+                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Choose</option>
+                <option value="UG Student" {{ old('position') == 'UG Student' ? 'selected' : '' }}>UG Student</option>
+                <option value="PG Student" {{ old('position') == 'PG Student' ? 'selected' : '' }}>PG Student</option>
+                <option value="PhD Student" {{ old('position') == 'PhD Student' ? 'selected' : '' }}>PhD Student</option>
+                <option value="Academic Person" {{ old('position') == 'Academic Person' ? 'selected' : '' }}>Academic Person</option>
+                <option value="Industry Person" {{ old('position') == 'Industry Person' ? 'selected' : '' }}>Industry Person</option>
+                <option value="Other" {{ old('position') == 'Other' ? 'selected' : '' }}>Other</option>
+            </select>
+            @error('position')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Upload Paper (Submit only MS word file DOC,DOCX file only) *</label>
-            <p class="text-sm text-gray-600 mb-2">Upload 1 supported file: document. Max 10 MB.</p>
+            <label class="block text-gray-700 mb-2">Attach Paper *</label>
+            <p class="text-sm text-gray-600 mb-2">Choose File: No file chosen. Max file size: 10MB</p>
             <input type="file" name="file" required accept=".doc,.docx"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             @error('file')
@@ -107,13 +95,22 @@
             @enderror
         </div>
 
-        <div class="mb-6">
-            <label class="block text-gray-700 mb-2">Additional Notes (Optional)</label>
-            <textarea name="description" rows="3"
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('description') }}</textarea>
-            @error('description')
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Author Comment (If Any)(Field)</label>
+            <textarea name="Abstract" rows="5"
+                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('Abstract') }}</textarea>
+            @error('Abstract')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
+        </div>
+
+        <div class="mb-6">
+            <label class="flex items-start">
+                <input type="checkbox" name="declaration" required class="mt-1 mr-2">
+                <span class="text-sm text-gray-700">
+                    Important Instruction: I have written name of Author [with all team members/Co-authors/Guide/Mentor (If More than One author)] on Ms word File of paper below "Title of Paper". I know only Author(s) who name written on Paper will get E-certificate
+                </span>
+            </label>
         </div>
 
         <div class="flex space-x-4">

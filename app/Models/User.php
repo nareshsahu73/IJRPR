@@ -34,6 +34,6 @@ class User extends Authenticatable
 
     public function papers(): HasMany
     {
-        return $this->hasMany(Paper::class);
+        return $this->hasMany(Paper::class, 'created_by');
     }
 }

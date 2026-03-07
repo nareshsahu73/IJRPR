@@ -22,14 +22,13 @@ class PaperController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'corresponding_author_name' => 'required|string|max:255',
-            'corresponding_author_email' => 'required|email|max:255',
+            'Title' => 'required|string|max:300',
+            'author_name' => 'required|string|max:500',
+            'cer_author_name' => 'required|email',
             'contact_no' => 'required|string|max:20',
             'affiliation' => 'required|string|max:255',
             'position' => 'required|string',
-            'country_name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'Abstract' => 'nullable|string',
             'file' => 'required|file|mimes:doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:10240',
         ]);
 
@@ -37,15 +36,15 @@ class PaperController extends Controller
             $filePath = $request->file('file')->store('papers', 'public');
 
             auth()->user()->papers()->create([
-                'title' => $validated['title'],
-                'corresponding_author_name' => $validated['corresponding_author_name'],
-                'corresponding_author_email' => $validated['corresponding_author_email'],
+                'Title' => $validated['Title'],
+                'author_name' => $validated['author_name'],
+                'cer_author_name' => $validated['cer_author_name'],
                 'contact_no' => $validated['contact_no'],
                 'affiliation' => $validated['affiliation'],
                 'position' => $validated['position'],
-                'country_name' => $validated['country_name'],
-                'description' => $validated['description'] ?? null,
-                'file_path' => $filePath,
+                'Abstract' => $validated['Abstract'] ?? null,
+                'file_name' => $filePath,
+                'created_by' => auth()->id(),
             ]);
 
             return redirect()->route('papers.index')->with('success', 'Paper submitted successfully!');
@@ -57,7 +56,7 @@ class PaperController extends Controller
     public function show(Paper $paper)
     {
         // Check if user owns the paper or is admin
-        if (auth()->id() !== $paper->user_id && !auth()->user()->is_admin) {
+        if (auth()->id() !== $paper->created_by && !auth()->user()->is_admin) {
             abort(403, 'Unauthorized access');
         }
 
@@ -67,27 +66,27 @@ class PaperController extends Controller
     public function download(Paper $paper)
     {
         // Check if user owns the paper or is admin
-        if (auth()->id() !== $paper->user_id && !auth()->user()->is_admin) {
+        if (auth()->id() !== $paper->created_by && !auth()->user()->is_admin) {
             abort(403, 'Unauthorized access');
         }
 
-        $filePath = storage_path('app/public/' . $paper->file_path);
+        $filePath = storage_path('app/public/' . $paper->file_name);
         
         if (!file_exists($filePath)) {
             abort(404, 'File not found');
         }
 
-        return response()->download($filePath, basename($paper->file_path));
+        return response()->download($filePath, basename($paper->file_name));
     }
 
     public function destroy(Paper $paper)
     {
         // Check if user owns the paper or is admin
-        if (auth()->id() !== $paper->user_id && !auth()->user()->is_admin) {
+        if (auth()->id() !== $paper->created_by && !auth()->user()->is_admin) {
             abort(403, 'Unauthorized to delete this paper');
         }
         
-        Storage::disk('public')->delete($paper->file_path);
+        Storage::disk('public')->delete($paper->file_name);
         $paper->delete();
 
         return redirect()->route('papers.index')->with('success', 'Paper deleted successfully!');

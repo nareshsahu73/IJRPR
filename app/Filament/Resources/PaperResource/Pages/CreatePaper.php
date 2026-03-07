@@ -11,10 +11,20 @@ class CreatePaper extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Agar user_id nahi hai to current user ka ID set karo
-        if (empty($data['user_id'])) {
-            $data['user_id'] = auth()->id();
+        // Agar vol_issue_id selected hai to Volume aur Issue set karo
+        if (!empty($data['vol_issue_id'])) {
+            $volIssue = \App\Models\VolIssue::find($data['vol_issue_id']);
+            if ($volIssue) {
+                $data['Volume'] = $volIssue->vol;
+                $data['Issue'] = $volIssue->issues;
+            }
         }
+        
+        // Remove virtual field vol_issue_id
+        unset($data['vol_issue_id']);
+        
+        // Set created_by to current user
+        $data['created_by'] = auth()->id();
 
         return $data;
     }

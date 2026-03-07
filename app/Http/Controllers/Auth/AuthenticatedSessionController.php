@@ -20,8 +20,18 @@ class AuthenticatedSessionController extends Controller
             'password' => ['required'],
         ]);
 
+        // Clear any existing session before login
+        $request->session()->flush();
+        
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            // Regenerate session to prevent fixation attacks
             $request->session()->regenerate();
+            
+            // Check if user is admin and redirect accordingly
+            if (auth()->user()->is_admin) {
+                return redirect('/admin');
+            }
+            
             return redirect()->intended('dashboard');
         }
 
@@ -33,8 +43,20 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request)
     {
         Auth::guard('web')->logout();
+        
+        // Clear all session data
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        
+        // Clear Filament session if exists
+        $request->session()->forget('filament');
+        
+        // Flush entire session
+        $request->session()->flush();
+        
+        // Clear cache
+        cache()->flush();
+        
         return redirect('/');
     }
 }

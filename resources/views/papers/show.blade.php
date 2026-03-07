@@ -28,7 +28,7 @@
             <div class="grid grid-cols-1 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-600">Title</label>
-                    <p class="text-gray-900">{{ $paper->title }}</p>
+                    <p class="text-gray-900">{{ $paper->Title ?? 'N/A' }}</p>
                 </div>
             </div>
         </div>
@@ -39,11 +39,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-600">Corresponding Author</label>
-                    <p class="text-gray-900">{{ $paper->corresponding_author_name }}</p>
+                    <p class="text-gray-900">{{ $paper->author_name ?? 'N/A' }}</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-600">Email</label>
-                    <p class="text-gray-900">{{ $paper->corresponding_author_email }}</p>
+                    <p class="text-gray-900">{{ $paper->cer_author_name ?? 'N/A' }}</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-600">Contact Number</label>
@@ -53,7 +53,7 @@
                     <label class="block text-sm font-medium text-gray-600">Position</label>
                     <p class="text-gray-900">
                         <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                            {{ $paper->position }}
+                            {{ $paper->position ?? 'N/A' }}
                         </span>
                     </p>
                 </div>
@@ -63,23 +63,19 @@
         <!-- Affiliation -->
         <div class="border-b pb-4">
             <h2 class="text-lg font-semibold mb-3 text-gray-700">Affiliation</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-600">Organization</label>
                     <p class="text-gray-900">{{ $paper->affiliation ?? 'N/A' }}</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600">Country</label>
-                    <p class="text-gray-900">{{ $paper->country_name ?? 'N/A' }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Description -->
-        @if($paper->description)
+        @if($paper->Abstract)
         <div class="border-b pb-4">
-            <h2 class="text-lg font-semibold mb-3 text-gray-700">Description</h2>
-            <p class="text-gray-900 whitespace-pre-wrap">{{ $paper->description }}</p>
+            <h2 class="text-lg font-semibold mb-3 text-gray-700">Abstract/Comment</h2>
+            <p class="text-gray-900 whitespace-pre-wrap">{{ $paper->Abstract }}</p>
         </div>
         @endif
 
@@ -91,7 +87,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                 </svg>
                 <div>
-                    <p class="text-gray-900 font-medium">{{ basename($paper->file_path) }}</p>
+                    <p class="text-gray-900 font-medium">{{ basename($paper->file_name ?? 'N/A') }}</p>
                     <a href="{{ route('papers.download', $paper) }}" 
                        class="inline-block mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
                         Download File
@@ -106,11 +102,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-600">Submitted By</label>
-                    <p class="text-gray-900">{{ $paper->user->name }}</p>
+                    <p class="text-gray-900">{{ $paper->user->name ?? 'N/A' }}</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-600">Submitted On</label>
-                    <p class="text-gray-900">{{ $paper->created_at->format('F d, Y h:i A') }}</p>
+                    <p class="text-gray-900">{{ $paper->created_at }}</p>
                 </div>
             </div>
         </div>

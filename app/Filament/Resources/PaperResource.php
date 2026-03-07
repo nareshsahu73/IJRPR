@@ -24,40 +24,32 @@ class PaperResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->label('Title of Paper')
+                // Basic Fields (visible to all)
+                Forms\Components\TextInput::make('Title')
+                    ->label('Paper Title *')
                     ->required()
-                    ->maxLength(255)
+                    ->maxLength(300)
                     ->columnSpanFull(),
 
-                Forms\Components\TextInput::make('corresponding_author_name')
-                    ->label('Name of Author (Only Corresponding Author)')
+                Forms\Components\TextInput::make('author_name')
+                    ->label('Corresponding Author Name *')
                     ->required()
-                    ->maxLength(255)
-                    ->helperText('All author(s) and co-author(s) must have their full names clearly written in the MS Word file')
+                    ->maxLength(500)
                     ->columnSpanFull(),
                 
-                Forms\Components\TextInput::make('corresponding_author_email')
-                    ->label('Email Address')
+                Forms\Components\TextInput::make('cer_author_name')
+                    ->label('Corresponding Author Email *')
                     ->email()
                     ->required()
-                    ->maxLength(255)
-                    ->helperText('The email address of the author submitting the paper (Corresponding Author)'),
+                    ->columnSpanFull(),
                 
                 Forms\Components\TextInput::make('contact_no')
-                    ->label('Contact No (With Country code)')
+                    ->label('Phone No (with country code) *')
                     ->required()
                     ->maxLength(20),
 
-                Forms\Components\TextInput::make('affiliation')
-                    ->label('Affiliation of Corresponding Author')
-                    ->required()
-                    ->maxLength(255)
-                    ->helperText('Name of College/University/Company/ of Corresponding Author')
-                    ->columnSpanFull(),
-                
                 Forms\Components\Select::make('position')
-                    ->label('Position/Post of Author')
+                    ->label('Position/Post *')
                     ->options([
                         'UG Student' => 'UG Student',
                         'PG Student' => 'PG Student',
@@ -68,30 +60,194 @@ class PaperResource extends Resource
                     ])
                     ->required(),
 
-                Forms\Components\TextInput::make('country_name')
-                    ->label('Country Name')
+                Forms\Components\TextInput::make('affiliation')
+                    ->label('Organization/Institute Name *')
                     ->required()
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+
+                Forms\Components\TextInput::make('Keywords')
+                    ->label('Country *')
                     ->maxLength(255),
 
-                Forms\Components\FileUpload::make('file_path')
-                    ->label('Upload Paper (Submit only MS word file DOC,DOCX file only)')
+                Forms\Components\FileUpload::make('file_name')
+                    ->label('Attach Paper *')
                     ->acceptedFileTypes(['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
                     ->maxSize(10240)
                     ->directory('papers')
-                    ->required()
-                    ->helperText('Upload 1 supported file: document. Max 10 MB.')
                     ->columnSpanFull(),
 
-                Forms\Components\Textarea::make('description')
-                    ->label('Additional Notes (Optional)')
-                    ->rows(3)
+                Forms\Components\Textarea::make('Abstract')
+                    ->label('Comments')
+                    ->rows(5)
                     ->columnSpanFull(),
 
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
+                // Admin Only Fields
+                Forms\Components\Select::make('vol_issue_id')
+                    ->label('Volume Issue')
+                    ->options(function () {
+                        return \App\Models\VolIssue::where('deleted', 0)
+                            ->orderBy('vol', 'asc')
+                            ->orderBy('issues', 'asc')
+                            ->get()
+                            ->mapWithKeys(function ($item) {
+                                return [$item->id => "Volume {$item->vol} Issue {$item->issues}"];
+                            })
+                            ->toArray();
+                    })
                     ->searchable()
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        if ($state) {
+                            $volIssue = \App\Models\VolIssue::find($state);
+                            if ($volIssue) {
+                                $set('Volume', $volIssue->vol);
+                                $set('Issue', $volIssue->issues);
+                            }
+                        }
+                    })
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\Hidden::make('Volume'),
+                Forms\Components\Hidden::make('Issue'),
+
+                Forms\Components\Select::make('paper_status')
+                    ->label('Paper Status')
+                    ->options([
+                        'Paper Accepted' => 'Paper Accepted',
+                        'Paper Rejected' => 'Paper Rejected',
+                        'Under Review' => 'Under Review',
+                    ])
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\Select::make('final_manuscript')
+                    ->label('Final manuscript')
+                    ->options([
+                        'Received' => 'Received',
+                        'Not Received' => 'Not Received',
+                    ])
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\Select::make('copy_right_received')
+                    ->label('Copy Right Received')
+                    ->options([
+                        'Yes' => 'Yes',
+                        'No' => 'No',
+                    ])
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\TextInput::make('filled_copy_right')
+                    ->label('Filled Copy Right')
+                    ->maxLength(255)
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\Select::make('status_of_payment')
+                    ->label('Status of Payment')
+                    ->options([
+                        'Paid' => 'Paid',
+                        'Unpaid' => 'Unpaid',
+                        'Waived' => 'Waived',
+                    ])
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\DatePicker::make('publication_date')
+                    ->label('Date')
+                    ->displayFormat('Y-m-d')
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\TextInput::make('updated_at')
+                    ->label('Last modified')
+                    ->disabled()
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\TextInput::make('DOI')
+                    ->label('IP Address')
+                    ->maxLength(200)
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\TextInput::make('invoice_no')
+                    ->label('Invoice No')
+                    ->maxLength(100)
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\TextInput::make('Author')
+                    ->label('Highest Qualification')
+                    ->maxLength(200)
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\TextInput::make('PageFrom')
+                    ->label('File link')
+                    ->maxLength(255)
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\Textarea::make('Reference')
+                    ->label('Comments')
+                    ->rows(3)
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin)
-                    ->helperText('Leave empty to assign to current user'),
+                    ->columnSpanFull(),
+
+                Forms\Components\TextInput::make('certificate_link')
+                    ->label('Certificate Link')
+                    ->maxLength(255)
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin)
+                    ->columnSpanFull(),
+
+                Forms\Components\FileUpload::make('formatted_doc')
+                    ->label('Formatted Doc file')
+                    ->directory('formatted_docs')
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin)
+                    ->columnSpanFull(),
+
+                Forms\Components\FileUpload::make('plagiarism_report')
+                    ->label('Plagiarism Report')
+                    ->directory('plagiarism_reports')
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin)
+                    ->columnSpanFull(),
+
+                Forms\Components\TextInput::make('plagiarism_percentage')
+                    ->label('Plagiarism percentage and comment')
+                    ->maxLength(255)
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin)
+                    ->columnSpanFull(),
+
+                Forms\Components\Select::make('cer_status')
+                    ->label('Checked')
+                    ->options([
+                        1 => 'Yes',
+                        0 => 'No',
+                    ])
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\Select::make('certificate_only')
+                    ->label('Plagiarism Checked')
+                    ->options([
+                        1 => 'Yes',
+                        0 => 'No',
+                    ])
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\Textarea::make('more_data')
+                    ->label('Author Comments (If any,Optional)')
+                    ->rows(3)
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin)
+                    ->columnSpanFull(),
+
+                // Email Template Section (Admin Only - shown after save button)
+                Forms\Components\Select::make('email_template_id')
+                    ->label('Select Email Template')
+                    ->options(function () {
+                        return \App\Models\EmailTemplate::where('email_status', 1)
+                            ->pluck('email_template_name', 'email_id')
+                            ->toArray();
+                    })
+                    ->searchable()
+                    ->visible(fn ($livewire) => 
+                        auth()->check() && 
+                        auth()->user()->is_admin && 
+                        $livewire instanceof \Filament\Resources\Pages\EditRecord
+                    )
+                    ->columnSpanFull()
+                    ->helperText('Select an email template and click "Send Email" button in the top right corner'),
             ])
             ->columns(2);
     }
@@ -100,27 +256,139 @@ class PaperResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Submitted By')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('title')
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('Title')
                     ->label('Paper Title')
                     ->searchable()
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('corresponding_author_name')
-                    ->label('Author')
+                    ->limit(40)
+                    ->wrap(),
+                Tables\Columns\TextColumn::make('author_name')
+                    ->label('Corresponding Author')
+                    ->searchable()
+                    ->limit(30),
+                Tables\Columns\TextColumn::make('cer_author_name')
+                    ->label('Email')
+                    ->searchable()
+                    ->limit(30),
+                Tables\Columns\TextColumn::make('contact_no')
+                    ->label('Contact')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('position')
                     ->label('Position')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'UG Student' => 'info',
+                        'PG Student' => 'success',
+                        'PhD Student' => 'warning',
+                        'Academic Person' => 'primary',
+                        'Industry Person' => 'danger',
+                        default => 'gray',
+                    }),
+                Tables\Columns\TextColumn::make('affiliation')
+                    ->label('Organization')
+                    ->searchable()
+                    ->limit(30)
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('Volume')
+                    ->label('Vol')
+                    ->sortable()
+                    ->alignCenter(),
+                Tables\Columns\TextColumn::make('Issue')
+                    ->label('Issue')
+                    ->sortable()
+                    ->alignCenter(),
+                Tables\Columns\TextColumn::make('paper_status')
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn (string $state = null): string => match ($state) {
+                        'Paper Accepted' => 'success',
+                        'Paper Rejected' => 'danger',
+                        'Under Review' => 'warning',
+                        default => 'gray',
+                    })
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('final_manuscript')
+                    ->label('Final Manuscript')
+                    ->badge()
+                    ->color(fn (string $state = null): string => match ($state) {
+                        'Received' => 'success',
+                        'Not Received' => 'danger',
+                        default => 'gray',
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('copy_right_received')
+                    ->label('Copyright')
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('status_of_payment')
+                    ->label('Payment')
+                    ->badge()
+                    ->color(fn (string $state = null): string => match ($state) {
+                        'Paid' => 'success',
+                        'Unpaid' => 'danger',
+                        'Waived' => 'info',
+                        default => 'gray',
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('publication_date')
+                    ->label('Published Date')
+                    ->date()
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Submitted On')
+                    ->label('Submitted')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('Volume')
+                    ->label('Volume')
+                    ->options(function () {
+                        return Paper::query()
+                            ->whereNotNull('Volume')
+                            ->distinct()
+                            ->pluck('Volume', 'Volume')
+                            ->sort()
+                            ->toArray();
+                    }),
+                Tables\Filters\SelectFilter::make('Issue')
+                    ->label('Issue')
+                    ->options(function () {
+                        return Paper::query()
+                            ->whereNotNull('Issue')
+                            ->distinct()
+                            ->pluck('Issue', 'Issue')
+                            ->sort()
+                            ->toArray();
+                    }),
+                Tables\Filters\SelectFilter::make('paper_status')
+                    ->label('Paper Status')
+                    ->options([
+                        'Paper Accepted' => 'Paper Accepted',
+                        'Paper Rejected' => 'Paper Rejected',
+                        'Under Review' => 'Under Review',
+                    ]),
+                Tables\Filters\SelectFilter::make('position')
+                    ->label('Position')
+                    ->options([
+                        'UG Student' => 'UG Student',
+                        'PG Student' => 'PG Student',
+                        'PhD Student' => 'PhD Student',
+                        'Academic Person' => 'Academic Person',
+                        'Industry Person' => 'Industry Person',
+                        'Other' => 'Other',
+                    ]),
+                Tables\Filters\SelectFilter::make('status_of_payment')
+                    ->label('Payment Status')
+                    ->options([
+                        'Paid' => 'Paid',
+                        'Unpaid' => 'Unpaid',
+                        'Waived' => 'Waived',
+                    ]),
             ])
             ->actions([
                 Actions\EditAction::make(),
@@ -130,7 +398,8 @@ class PaperResource extends Resource
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getPages(): array

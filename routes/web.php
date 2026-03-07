@@ -14,6 +14,8 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
     
     Route::resource('papers', PaperController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
+    
+    // Use PaperController download method (works with existing files)
     Route::get('/papers/{paper}/download', [PaperController::class, 'download'])->name('papers.download');
     
     // Profile routes

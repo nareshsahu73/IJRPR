@@ -18,21 +18,30 @@ class LatestPapers extends BaseWidget
         return $table
             ->heading('Latest Papers')
             ->query(
-                Paper::query()->latest()->limit(10)
+                Paper::query()->latest('created_at')->limit(10)
             )
             ->columns([
-                Tables\Columns\TextColumn::make('title')
+                Tables\Columns\TextColumn::make('Title')
                     ->label('Paper Title')
                     ->limit(50)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Submitted By')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('corresponding_author_name')
+                Tables\Columns\TextColumn::make('author_name')
                     ->label('Author')
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(30),
                 Tables\Columns\TextColumn::make('position')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (string $state = null): string => match ($state) {
+                        'UG Student' => 'info',
+                        'PG Student' => 'success',
+                        'PhD Student' => 'warning',
+                        'Academic Person' => 'primary',
+                        'Industry Person' => 'danger',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Submitted')
                     ->dateTime()

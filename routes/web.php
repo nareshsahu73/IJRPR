@@ -5,7 +5,16 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    // If user is already logged in, redirect based on role
+    if (auth()->check()) {
+        if (auth()->user()->is_admin) {
+            return redirect('/admin');
+        }
+        return redirect()->route('dashboard');
+    }
+    
+    // Show welcome page for guests
+    return view('welcome');
 });
 
 Route::middleware(['auth'])->group(function () {

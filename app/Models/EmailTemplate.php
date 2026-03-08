@@ -10,6 +10,8 @@ class EmailTemplate extends Model
     
     protected $primaryKey = 'email_id';
     
+    public $timestamps = false;
+    
     protected $fillable = [
         'form_id',
         'email_template_name',

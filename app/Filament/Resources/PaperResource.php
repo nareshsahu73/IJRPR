@@ -70,11 +70,25 @@ class PaperResource extends Resource
                     ->label('Country *')
                     ->maxLength(255),
 
+                Forms\Components\Select::make('priority_status')
+                    ->label('Priority Status')
+                    ->options([
+                        'High priority UG' => 'High priority UG',
+                        'Medium Priority PG' => 'Medium Priority PG',
+                        'Medium Priority Academic' => 'Medium Priority Academic',
+                        'Low Priority Abroad' => 'Low Priority Abroad',
+                    ])
+                    ->default('Medium Priority PG')
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
                 Forms\Components\FileUpload::make('file_name')
                     ->label('Attach Paper *')
-                    ->acceptedFileTypes(['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                    ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
                     ->maxSize(10240)
                     ->directory('papers')
+                    ->disk('public')
+                    ->uploadingMessage('Uploading paper...')
+                    ->helperText('Drag & Drop your files or Browse - Only DOCX files are accepted (Max: 5MB)')
                     ->columnSpanFull(),
 
                 Forms\Components\Textarea::make('Abstract')
@@ -194,13 +208,21 @@ class PaperResource extends Resource
 
                 Forms\Components\FileUpload::make('formatted_doc')
                     ->label('Formatted Doc file')
-                    ->directory('formatted_docs')
+                    ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                    ->disk('private')
+                    ->directory('secure_uploads/formatted_docs')
+                    ->uploadingMessage('Uploading and scanning document...')
+                    ->helperText('Drag & Drop your files or Browse - Only DOCX files accepted')
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin)
                     ->columnSpanFull(),
 
                 Forms\Components\FileUpload::make('plagiarism_report')
                     ->label('Plagiarism Report')
-                    ->directory('plagiarism_reports')
+                    ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf'])
+                    ->disk('private')
+                    ->directory('secure_uploads/plagiarism_reports')
+                    ->uploadingMessage('Uploading and scanning report...')
+                    ->helperText('Drag & Drop your files or Browse - DOCX or PDF files accepted')
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin)
                     ->columnSpanFull(),
 
@@ -247,7 +269,7 @@ class PaperResource extends Resource
                         $livewire instanceof \Filament\Resources\Pages\EditRecord
                     )
                     ->columnSpanFull()
-                    ->helperText('Select an email template and click "Send Email" button in the top right corner'),
+                    ->helperText('Select an email template and click "Send Email" button below'),
             ])
             ->columns(2);
     }
@@ -291,15 +313,17 @@ class PaperResource extends Resource
                     ->label('Organization')
                     ->searchable()
                     ->limit(30)
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('Volume')
                     ->label('Vol')
                     ->sortable()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('Issue')
                     ->label('Issue')
                     ->sortable()
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('paper_status')
                     ->label('Status')
                     ->badge()
@@ -337,7 +361,7 @@ class PaperResource extends Resource
                     ->label('Published Date')
                     ->date()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Submitted')
                     ->dateTime()
@@ -389,11 +413,20 @@ class PaperResource extends Resource
                         'Unpaid' => 'Unpaid',
                         'Waived' => 'Waived',
                     ]),
+                Tables\Filters\SelectFilter::make('priority_status')
+                    ->label('Priority Status')
+                    ->options([
+                        'High priority UG' => 'High priority UG',
+                        'Medium Priority PG' => 'Medium Priority PG',
+                        'Medium Priority Academic' => 'Medium Priority Academic',
+                        'Low Priority Abroad' => 'Low Priority Abroad',
+                    ]),
             ])
             ->actions([
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])
+            ->actionsColumnLabel('Actions')
             ->bulkActions([
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make(),

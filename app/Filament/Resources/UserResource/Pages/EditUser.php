@@ -5,6 +5,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Hash;
 
 class EditUser extends EditRecord
 {
@@ -15,5 +16,21 @@ class EditUser extends EditRecord
         return [
             Actions\DeleteAction::make(),
         ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        // Hash password only if it's provided
+        if (isset($data['password']) && filled($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            // Remove password field if empty (keep existing password)
+            unset($data['password']);
+        }
+        
+        // Remove password_confirmation as it's not needed in database
+        unset($data['password_confirmation']);
+        
+        return $data;
     }
 }

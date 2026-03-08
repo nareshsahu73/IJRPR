@@ -42,13 +42,11 @@ class EmailTemplateResource extends Resource
                     ]),
                 Tables\Columns\TextColumn::make('email_trigger_set')
                     ->label('Trigger')
-                    ->badge(),
-                Tables\Columns\TextColumn::make('email_from')
-                    ->label('From'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created')
-                    ->dateTime()
-                    ->sortable(),
+                    ->badge()
+                    ->default('custom'),
+                Tables\Columns\TextColumn::make('custom_from_email')
+                    ->label('From')
+                    ->default('-'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('email_status')

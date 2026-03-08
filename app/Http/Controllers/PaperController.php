@@ -29,7 +29,7 @@ class PaperController extends Controller
             'affiliation' => 'required|string|max:255',
             'position' => 'required|string',
             'Abstract' => 'nullable|string',
-            'file' => 'required|file|mimes:doc,docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:10240',
+            'file' => 'required|file|mimes:docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:10240',
         ]);
 
         try {

@@ -16,6 +16,15 @@ class EditPaper extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\DeleteAction::make(),
+        ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getSaveFormAction(),
+            $this->getCancelFormAction(),
             Actions\Action::make('sendEmail')
                 ->label('Send Email')
                 ->icon('heroicon-o-envelope')
@@ -47,11 +56,9 @@ class EditPaper extends EditRecord
                     }
 
                     try {
-                        // Replace placeholders in template
                         $subject = $this->replacePlaceholders($template->subject, $paper);
                         $htmlContent = $this->replacePlaceholders($template->html_template, $paper);
                         
-                        // Send email
                         Mail::send([], [], function ($message) use ($paper, $subject, $htmlContent, $template) {
                             $message->to($paper->cer_author_name)
                                 ->subject($subject)
@@ -75,7 +82,6 @@ class EditPaper extends EditRecord
                             ->send();
                     }
                 }),
-            Actions\DeleteAction::make(),
         ];
     }
 
@@ -103,16 +109,35 @@ class EditPaper extends EditRecord
 
     private function replacePlaceholders(string $content, $paper): string
     {
+        // New format placeholders
         $replacements = [
             '{paper_title}' => $paper->Title ?? '',
             '{author_name}' => $paper->author_name ?? '',
             '{author_email}' => $paper->cer_author_name ?? '',
+            '{contact_no}' => $paper->contact_no ?? '',
+            '{affiliation}' => $paper->affiliation ?? '',
+            '{position}' => $paper->position ?? '',
+            '{country}' => $paper->Keywords ?? '',
             '{volume}' => $paper->Volume ?? '',
             '{issue}' => $paper->Issue ?? '',
             '{doi}' => $paper->DOI ?? '',
             '{publication_date}' => $paper->publication_date ?? '',
+            '{paper_id}' => $paper->id ?? '',
+            '{submission_date}' => $paper->created_at ?? '',
+            '{paper_status}' => $paper->paper_status ?? '',
         ];
 
-        return str_replace(array_keys($replacements), array_values($replacements), $content);
+        // Old format placeholders (for backward compatibility)
+        $oldFormatReplacements = [
+            '{$ANSWER_field1}' => $paper->Title ?? '',
+            '{$ANSWER_field2}' => $paper->author_name ?? '',
+            '{$ANSWER_core__submission_id}' => $paper->id ?? '',
+            '{$ANSWER_core__submission_date}' => $paper->created_at ?? '',
+        ];
+
+        // Merge both formats
+        $allReplacements = array_merge($replacements, $oldFormatReplacements);
+
+        return str_replace(array_keys($allReplacements), array_values($allReplacements), $content);
     }
 }

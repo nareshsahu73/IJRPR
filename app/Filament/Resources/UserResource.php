@@ -26,18 +26,29 @@ class UserResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->label('Name'),
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->unique(ignoreRecord: true)
+                    ->label('Email'),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required(fn ($record) => $record === null)
                     ->dehydrated(fn ($state) => filled($state))
-                    ->maxLength(255),
-                Forms\Components\Toggle::make('is_admin')
-                    ->label('Admin Access'),
+                    ->maxLength(255)
+                    ->label('Password')
+                    ->helperText('Leave blank to keep current password (when editing)'),
+                Forms\Components\TextInput::make('password_confirmation')
+                    ->password()
+                    ->required(fn ($record) => $record === null)
+                    ->dehydrated(false)
+                    ->maxLength(255)
+                    ->label('Confirm Password')
+                    ->same('password')
+                    ->helperText('Must match the password field'),
             ]);
     }
 
@@ -63,6 +74,7 @@ class UserResource extends Resource
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
             ])
+            ->actionsColumnLabel('Actions')
             ->bulkActions([
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make(),

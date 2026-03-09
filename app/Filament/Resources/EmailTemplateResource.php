@@ -5,6 +5,9 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\EmailTemplateResource\Pages;
 use App\Models\EmailTemplate;
 use BackedEnum;
+use Filament\Actions;
+use Filament\Forms;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,6 +21,101 @@ class EmailTemplateResource extends Resource
     protected static ?string $navigationLabel = 'Email Templates';
     
     protected static ?int $navigationSort = 4;
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema
+            ->schema([
+                Forms\Components\Hidden::make('form_id')
+                    ->default(1),
+                    
+                Forms\Components\TextInput::make('email_template_name')
+                    ->label('Template Name')
+                    ->required()
+                    ->maxLength(100),
+                    
+                Forms\Components\Select::make('email_status')
+                    ->label('Status')
+                    ->options([
+                        'enabled' => 'Enabled',
+                        'disabled' => 'Disabled',
+                    ])
+                    ->default('enabled')
+                    ->required(),
+                    
+                Forms\Components\TextInput::make('subject')
+                    ->label('Email Subject')
+                    ->required()
+                    ->maxLength(255),
+                    
+                Forms\Components\Select::make('email_from')
+                    ->label('Email From')
+                    ->options([
+                        'admin' => 'Admin',
+                        'client' => 'Client',
+                        'form_email_field' => 'Form Email Field',
+                        'custom' => 'Custom',
+                        'none' => 'None',
+                    ])
+                    ->default('custom')
+                    ->reactive(),
+                    
+                Forms\Components\TextInput::make('custom_from_name')
+                    ->label('Custom From Name')
+                    ->maxLength(100)
+                    ->visible(fn ($get) => $get('email_from') === 'custom'),
+                    
+                Forms\Components\TextInput::make('custom_from_email')
+                    ->label('Custom From Email')
+                    ->email()
+                    ->maxLength(100)
+                    ->visible(fn ($get) => $get('email_from') === 'custom'),
+                    
+                Forms\Components\Select::make('email_reply_to')
+                    ->label('Reply To')
+                    ->options([
+                        'admin' => 'Admin',
+                        'client' => 'Client',
+                        'form_email_field' => 'Form Email Field',
+                        'custom' => 'Custom',
+                        'none' => 'None',
+                    ])
+                    ->default('none')
+                    ->reactive(),
+                    
+                Forms\Components\TextInput::make('custom_reply_to_name')
+                    ->label('Custom Reply To Name')
+                    ->maxLength(100)
+                    ->visible(fn ($get) => $get('email_reply_to') === 'custom'),
+                    
+                Forms\Components\TextInput::make('custom_reply_to_email')
+                    ->label('Custom Reply To Email')
+                    ->email()
+                    ->maxLength(100)
+                    ->visible(fn ($get) => $get('email_reply_to') === 'custom'),
+                    
+                Forms\Components\RichEditor::make('html_template')
+                    ->label('HTML Template')
+                    ->columnSpanFull()
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'underline',
+                        'link',
+                        'bulletList',
+                        'orderedList',
+                        'h2',
+                        'h3',
+                    ])
+                    ->helperText('Available placeholders: {paper_title}, {author_name}, {email}, {position}, {country}, {affiliation}, {issue}, {doi}, {publication_date}, {paper_id}, {paper_status}, {created_at} | Old format: {$ANSWER_field1} (Title), {$ANSWER_field2} (Author), {$ANSWER_core__submission_id} (Paper ID), {$ANSWER_core__submission_date} (Submission Date)'),
+                    
+                Forms\Components\Textarea::make('text_template')
+                    ->label('Text Template')
+                    ->rows(10)
+                    ->columnSpanFull()
+                    ->helperText('Available placeholders: {paper_title}, {author_name}, {email}, {position}, {country}, {affiliation}, {issue}, {doi}, {publication_date}, {paper_id}, {paper_status}, {created_at} | Old format: {$ANSWER_field1} (Title), {$ANSWER_field2} (Author), {$ANSWER_core__submission_id} (Paper ID), {$ANSWER_core__submission_date} (Submission Date)'),
+            ]);
+    }
 
     public static function table(Table $table): Table
     {
@@ -40,10 +138,6 @@ class EmailTemplateResource extends Resource
                         'success' => 'enabled',
                         'danger' => 'disabled',
                     ]),
-                Tables\Columns\TextColumn::make('email_trigger_set')
-                    ->label('Trigger')
-                    ->badge()
-                    ->default('custom'),
                 Tables\Columns\TextColumn::make('custom_from_email')
                     ->label('From')
                     ->default('-'),
@@ -55,6 +149,16 @@ class EmailTemplateResource extends Resource
                         'disabled' => 'Disabled',
                     ]),
             ])
+            ->actions([
+                Actions\EditAction::make(),
+                Actions\DeleteAction::make(),
+            ])
+            ->actionsColumnLabel('Actions')
+            ->bulkActions([
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
+                ]),
+            ])
             ->defaultSort('email_id', 'desc');
     }
 
@@ -62,6 +166,8 @@ class EmailTemplateResource extends Resource
     {
         return [
             'index' => Pages\ListEmailTemplates::route('/'),
+            'create' => Pages\CreateEmailTemplate::route('/create'),
+            'edit' => Pages\EditEmailTemplate::route('/{record}/edit'),
         ];
     }
 }

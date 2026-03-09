@@ -4,17 +4,21 @@ namespace App\Filament\Resources\EmailTemplateResource\Pages;
 
 use App\Filament\Resources\EmailTemplateResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\EditRecord;
 
-class ListEmailTemplates extends ListRecords
+class EditEmailTemplate extends EditRecord
 {
     protected static string $resource = EmailTemplateResource::class;
-    
+
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
-                ->label('Add Template'),
+            Actions\DeleteAction::make(),
         ];
+    }
+    
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

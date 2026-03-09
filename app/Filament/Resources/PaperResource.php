@@ -88,7 +88,7 @@ class PaperResource extends Resource
                     ->directory('papers')
                     ->disk('public')
                     ->uploadingMessage('Uploading paper...')
-                    ->helperText('Drag & Drop your files or Browse - Only DOCX files are accepted (Max: 5MB)')
+                    ->helperText('Only DOCX files are accepted (Max: 5MB)')
                     ->columnSpanFull(),
 
                 Forms\Components\Textarea::make('Abstract')
@@ -208,21 +208,30 @@ class PaperResource extends Resource
 
                 Forms\Components\FileUpload::make('formatted_doc')
                     ->label('Formatted Doc file')
-                    ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                    ->acceptedFileTypes([
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/msword'
+                    ])
+                    ->maxSize(5120)
                     ->disk('private')
                     ->directory('secure_uploads/formatted_docs')
                     ->uploadingMessage('Uploading and scanning document...')
-                    ->helperText('Drag & Drop your files or Browse - Only DOCX files accepted')
+                    ->helperText('DOCX and DOC files accepted (Max: 5MB)')
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin)
                     ->columnSpanFull(),
 
                 Forms\Components\FileUpload::make('plagiarism_report')
                     ->label('Plagiarism Report')
-                    ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf'])
+                    ->acceptedFileTypes([
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/msword',
+                        'application/pdf'
+                    ])
+                    ->maxSize(5120)
                     ->disk('private')
                     ->directory('secure_uploads/plagiarism_reports')
                     ->uploadingMessage('Uploading and scanning report...')
-                    ->helperText('Drag & Drop your files or Browse - DOCX or PDF files accepted')
+                    ->helperText('DOCX, DOC or PDF files accepted (Max: 5MB)')
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin)
                     ->columnSpanFull(),
 

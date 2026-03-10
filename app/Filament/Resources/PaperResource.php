@@ -28,20 +28,17 @@ class PaperResource extends Resource
                 Forms\Components\TextInput::make('Title')
                     ->label('Paper Title *')
                     ->required()
-                    ->maxLength(300)
-                    ->columnSpanFull(),
+                    ->maxLength(300),
 
                 Forms\Components\TextInput::make('author_name')
                     ->label('Corresponding Author Name *')
                     ->required()
-                    ->maxLength(500)
-                    ->columnSpanFull(),
+                    ->maxLength(500),
                 
                 Forms\Components\TextInput::make('cer_author_name')
                     ->label('Corresponding Author Email *')
                     ->email()
-                    ->required()
-                    ->columnSpanFull(),
+                    ->required(),
                 
                 Forms\Components\TextInput::make('contact_no')
                     ->label('Phone No (with country code) *')
@@ -63,8 +60,7 @@ class PaperResource extends Resource
                 Forms\Components\TextInput::make('affiliation')
                     ->label('Organization/Institute Name *')
                     ->required()
-                    ->maxLength(255)
-                    ->columnSpanFull(),
+                    ->maxLength(255),
 
                 Forms\Components\TextInput::make('Keywords')
                     ->label('Country *')
@@ -89,6 +85,7 @@ class PaperResource extends Resource
                     ->disk('public')
                     ->uploadingMessage('Uploading paper...')
                     ->helperText('Only DOCX files are accepted (Max: 5MB)')
+                    ->deletable()
                     ->columnSpanFull(),
 
                 Forms\Components\Textarea::make('Abstract')
@@ -203,8 +200,7 @@ class PaperResource extends Resource
                 Forms\Components\TextInput::make('certificate_link')
                     ->label('Certificate Link')
                     ->maxLength(255)
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin)
-                    ->columnSpanFull(),
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
 
                 Forms\Components\FileUpload::make('formatted_doc')
                     ->label('Formatted Doc file')
@@ -217,8 +213,8 @@ class PaperResource extends Resource
                     ->directory('secure_uploads/formatted_docs')
                     ->uploadingMessage('Uploading and scanning document...')
                     ->helperText('DOCX and DOC files accepted (Max: 5MB)')
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin)
-                    ->columnSpanFull(),
+                    ->deletable()
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
 
                 Forms\Components\FileUpload::make('plagiarism_report')
                     ->label('Plagiarism Report')
@@ -232,14 +228,13 @@ class PaperResource extends Resource
                     ->directory('secure_uploads/plagiarism_reports')
                     ->uploadingMessage('Uploading and scanning report...')
                     ->helperText('DOCX, DOC or PDF files accepted (Max: 5MB)')
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin)
-                    ->columnSpanFull(),
+                    ->deletable()
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
 
                 Forms\Components\TextInput::make('plagiarism_percentage')
                     ->label('Plagiarism percentage and comment')
                     ->maxLength(255)
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin)
-                    ->columnSpanFull(),
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
 
                 Forms\Components\Select::make('cer_status')
                     ->label('Checked')

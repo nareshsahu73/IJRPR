@@ -17,6 +17,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Author</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Submitted</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
@@ -32,18 +33,29 @@
 
                                 </span>
                             </td>
+                            <td class="px-6 py-4">
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($paper->paper_status): ?>
+                                    <span class="px-2 py-1 text-xs rounded-full 
+                                        <?php echo e($paper->paper_status == 'Paper Accepted' ? 'bg-green-100 text-green-800' : ''); ?>
+
+                                        <?php echo e($paper->paper_status == 'Paper Rejected' ? 'bg-red-100 text-red-800' : ''); ?>
+
+                                        <?php echo e($paper->paper_status == 'Under Review' ? 'bg-yellow-100 text-yellow-800' : ''); ?>">
+                                        <?php echo e($paper->paper_status); ?>
+
+                                    </span>
+                                <?php else: ?>
+                                    <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">
+                                        Pending
+                                    </span>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                            </td>
                             <td class="px-6 py-4"><?php echo e($paper->created_at); ?></td>
                             <td class="px-6 py-4">
                                 <a href="<?php echo e(route('papers.show', $paper)); ?>" 
                                    class="text-blue-500 hover:underline mr-3">View</a>
                                 <a href="<?php echo e(route('papers.download', $paper)); ?>" 
-                                   class="text-green-500 hover:underline mr-3">Download</a>
-                                <form method="POST" action="<?php echo e(route('papers.destroy', $paper)); ?>" class="inline">
-                                    <?php echo csrf_field(); ?>
-                                    <?php echo method_field('DELETE'); ?>
-                                    <button type="submit" class="text-red-500 hover:underline"
-                                            onclick="return confirm('Are you sure?')">Delete</button>
-                                </form>
+                                   class="text-green-500 hover:underline">Download</a>
                             </td>
                         </tr>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::endLoop(); ?><?php endif; ?><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php \Livewire\Features\SupportCompiledWireKeys\SupportCompiledWireKeys::closeLoop(); ?><?php endif; ?>

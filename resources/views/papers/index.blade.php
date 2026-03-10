@@ -19,6 +19,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Author</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Submitted</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
@@ -33,18 +34,26 @@
                                     {{ $paper->position ?? 'N/A' }}
                                 </span>
                             </td>
+                            <td class="px-6 py-4">
+                                @if($paper->paper_status)
+                                    <span class="px-2 py-1 text-xs rounded-full 
+                                        {{ $paper->paper_status == 'Paper Accepted' ? 'bg-green-100 text-green-800' : '' }}
+                                        {{ $paper->paper_status == 'Paper Rejected' ? 'bg-red-100 text-red-800' : '' }}
+                                        {{ $paper->paper_status == 'Under Review' ? 'bg-yellow-100 text-yellow-800' : '' }}">
+                                        {{ $paper->paper_status }}
+                                    </span>
+                                @else
+                                    <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">
+                                        Pending
+                                    </span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4">{{ $paper->created_at }}</td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('papers.show', $paper) }}" 
-                                   class="text-blue-500 hover:underline mr-3">View</a>
+                                <!-- <a href="{{ route('papers.show', $paper) }}" 
+                                   class="text-blue-500 hover:underline mr-3">View</a> -->
                                 <a href="{{ route('papers.download', $paper) }}" 
-                                   class="text-green-500 hover:underline mr-3">Download</a>
-                                <form method="POST" action="{{ route('papers.destroy', $paper) }}" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-500 hover:underline"
-                                            onclick="return confirm('Are you sure?')">Delete</button>
-                                </form>
+                                   class="text-green-500 hover:underline">Download</a>
                             </td>
                         </tr>
                     @endforeach

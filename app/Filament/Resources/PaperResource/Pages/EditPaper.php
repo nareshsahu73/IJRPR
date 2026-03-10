@@ -16,6 +16,42 @@ class EditPaper extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('downloadPaper')
+                ->label('Download Paper')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('success')
+                ->visible(fn () => $this->record->file_name)
+                ->action(function () {
+                    return response()->download(
+                        storage_path('app/public/' . $this->record->file_name),
+                        basename($this->record->file_name)
+                    );
+                }),
+            
+            Actions\Action::make('downloadFormattedDoc')
+                ->label('Download Formatted Doc')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('info')
+                ->visible(fn () => auth()->user()->is_admin && $this->record->formatted_doc)
+                ->action(function () {
+                    return response()->download(
+                        storage_path('app/private/' . $this->record->formatted_doc),
+                        basename($this->record->formatted_doc)
+                    );
+                }),
+            
+            Actions\Action::make('downloadPlagiarismReport')
+                ->label('Download Plagiarism Report')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('warning')
+                ->visible(fn () => auth()->user()->is_admin && $this->record->plagiarism_report)
+                ->action(function () {
+                    return response()->download(
+                        storage_path('app/private/' . $this->record->plagiarism_report),
+                        basename($this->record->plagiarism_report)
+                    );
+                }),
+            
             Actions\DeleteAction::make(),
         ];
     }

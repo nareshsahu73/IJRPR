@@ -41,7 +41,6 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
                 <label class="block text-gray-700 mb-2">Corresponding Author Email *</label>
-                <p class="text-sm text-gray-600 mb-2">The email address of the author submitting the paper (Corresponding Author)</p>
                 <input type="email" name="cer_author_name" value="{{ old('cer_author_name') }}" required
                     class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 @error('cer_author_name')
@@ -87,16 +86,70 @@
 
         <div class="mb-4">
             <label class="block text-gray-700 mb-2">Attach Paper *</label>
-            <p class="text-sm text-gray-600 mb-2">Choose File: No file chosen. Max file size: 10MB</p>
-            <input type="file" name="file" required accept=".doc,.docx"
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="text-sm text-gray-600 mb-2">Only DOCX files accepted. Max file size: 5MB</p>
+            <input type="file" name="file" required accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onchange="validateFile(this)">
+            <p id="file-error" class="text-red-500 text-sm mt-1 hidden">Please select a valid DOCX file</p>
             @error('file')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
 
+        <script>
+        function validateFile(input) {
+            const file = input.files[0];
+            const errorMsg = document.getElementById('file-error');
+            
+            if (file) {
+                const fileName = file.name.toLowerCase();
+                const fileSize = file.size;
+                const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+                
+                // Check file extension
+                if (!fileName.endsWith('.docx')) {
+                    errorMsg.textContent = 'Only DOCX files are allowed';
+                    errorMsg.classList.remove('hidden');
+                    input.value = '';
+                    return false;
+                }
+                
+                // Check file size
+                if (fileSize > maxSize) {
+                    errorMsg.textContent = 'File size must be less than 5MB';
+                    errorMsg.classList.remove('hidden');
+                    input.value = '';
+                    return false;
+                }
+                
+                // Check MIME type
+                if (file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                    errorMsg.textContent = 'Invalid file type. Only DOCX files are allowed';
+                    errorMsg.classList.remove('hidden');
+                    input.value = '';
+                    return false;
+                }
+                
+                errorMsg.classList.add('hidden');
+                return true;
+            }
+        }
+        
+        // Form validation before submit
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const fileInput = document.querySelector('input[name="file"]');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                e.preventDefault();
+                document.getElementById('file-error').textContent = 'Please select a file to upload';
+                document.getElementById('file-error').classList.remove('hidden');
+                fileInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+        });
+        </script>
+
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Author Comment (If Any)(Field)</label>
+            <label class="block text-gray-700 mb-2">Author Comment (If Any)</label>
             <textarea name="Abstract" rows="5"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('Abstract') }}</textarea>
             @error('Abstract')

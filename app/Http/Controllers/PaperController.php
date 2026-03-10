@@ -29,7 +29,7 @@ class PaperController extends Controller
             'affiliation' => 'required|string|max:255',
             'position' => 'required|string',
             'Abstract' => 'nullable|string',
-            'file' => 'required|file|mimes:docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:10240',
+            'file' => 'required|file|mimes:docx|max:5120',
         ]);
 
         try {
@@ -56,7 +56,7 @@ class PaperController extends Controller
     public function show(Paper $paper)
     {
         // Check if user owns the paper or is admin
-        if (auth()->id() !== $paper->created_by && !auth()->user()->is_admin) {
+        if (auth()->id() !== $paper->created_by || !auth()->user()->is_admin) {
             abort(403, 'Unauthorized access');
         }
 
@@ -65,18 +65,19 @@ class PaperController extends Controller
 
     public function download(Paper $paper)
     {
-        // Check if user owns the paper or is admin
-        if (auth()->id() !== $paper->created_by && !auth()->user()->is_admin) {
+        $user = auth()->user();
+    
+        if (!$user->is_admin && $user->id !== (int) $paper->created_by) {
             abort(403, 'Unauthorized access');
         }
-
+    
         $filePath = storage_path('app/public/' . $paper->file_name);
-        
+    
         if (!file_exists($filePath)) {
             abort(404, 'File not found');
         }
-
-        return response()->download($filePath, basename($paper->file_name));
+    
+        return response()->download($filePath);
     }
 
     public function destroy(Paper $paper)
@@ -90,5 +91,41 @@ class PaperController extends Controller
         $paper->delete();
 
         return redirect()->route('papers.index')->with('success', 'Paper deleted successfully!');
+    }
+
+    public function adminDownload(Request $request, $id)
+    {
+        $paper = Paper::findOrFail($id);
+        
+        // Check if user is admin
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            abort(403, 'Unauthorized access');
+        }
+        
+        $type = $request->query('type', 'public');
+        $field = $request->query('field', 'file_name');
+        
+        // Get the file name from the specified field
+        $fileName = $paper->$field;
+        
+        if (!$fileName) {
+            abort(404, 'File not found');
+        }
+        
+        // Determine disk and path
+        if ($type === 'private') {
+            $filePath = storage_path('app/private/' . $fileName);
+        } else {
+            $filePath = storage_path('app/public/' . $fileName);
+        }
+        
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found at: ' . $filePath);
+        }
+        
+        // Get original filename or use basename
+        $downloadName = $paper->original_filename ?? basename($fileName);
+        
+        return response()->download($filePath, $downloadName);
     }
 }

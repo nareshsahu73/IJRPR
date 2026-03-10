@@ -26,6 +26,11 @@ Route::middleware(['auth'])->group(function () {
     
     // Use PaperController download method (works with existing files)
     Route::get('/papers/{paper}/download', [PaperController::class, 'download'])->name('papers.download');
+});
+
+// Admin panel file download route (must be authenticated)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/papers/{id}/download', [PaperController::class, 'adminDownload'])->name('paper.download');
     
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
@@ -35,3 +40,11 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Override Filament admin logout to redirect to home page
+Route::post('/admin/logout', function (Illuminate\Http\Request $request) {
+    \Illuminate\Support\Facades\Auth::guard('web')->logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return redirect('/');
+})->middleware('auth')->name('filament.admin.auth.logout');

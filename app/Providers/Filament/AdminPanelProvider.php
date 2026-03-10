@@ -30,6 +30,9 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('220px')
+            ->collapsedSidebarWidth('60px')
+            ->breadcrumbs(false)
             ->navigationGroups([
                 'Content Management',
                 'System',
@@ -181,6 +184,198 @@ class AdminPanelProvider extends PanelProvider
                         fill: #f59e0b !important;
                     }
                     
+                    /* File upload container - show all action buttons */
+                    .fi-fo-file-upload-file {
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                        padding: 12px !important;
+                        background: #f3f4f6 !important;
+                        border-radius: 8px !important;
+                        margin-bottom: 8px !important;
+                        gap: 12px !important;
+                    }
+                    
+                    /* Show file name but make it clean */
+                    .fi-fo-file-upload-file-name {
+                        flex: 1 !important;
+                        font-weight: 500 !important;
+                        color: #374151 !important;
+                        display: block !important;
+                    }
+                    
+                    .dark .fi-fo-file-upload-file-name {
+                        color: #d1d5db !important;
+                    }
+                    
+                    /* File upload actions - show all buttons */
+                    .fi-fo-file-upload-file-actions {
+                        display: flex !important;
+                        gap: 8px !important;
+                        align-items: center !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                    }
+                    
+                    /* Force show all action buttons */
+                    .fi-fo-file-upload-file-actions > * {
+                        display: inline-flex !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                    }
+                    
+                    /* Make download button visible */
+                    .fi-fo-file-upload-file-actions button,
+                    .fi-fo-file-upload-file-actions a {
+                        display: inline-flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        padding: 8px !important;
+                        border-radius: 6px !important;
+                        transition: all 0.2s !important;
+                        min-width: 32px !important;
+                        min-height: 32px !important;
+                    }
+                    
+                    /* Download button - green with icon */
+                    button[x-on\:click*="download"],
+                    a[download],
+                    .fi-fo-file-upload-file-actions button:first-child:not([wire\:click*="remove"]) {
+                        background: #10b981 !important;
+                        color: white !important;
+                        order: 1 !important;
+                    }
+                    
+                    button[x-on\:click*="download"]:hover,
+                    a[download]:hover {
+                        background: #059669 !important;
+                    }
+                    
+                    /* Delete/Remove button - red */
+                    .fi-fo-file-upload-file-actions button[wire\:click*="remove"],
+                    .fi-fo-file-upload-file-actions button:last-child {
+                        background: #ef4444 !important;
+                        color: white !important;
+                        order: 2 !important;
+                    }
+                    
+                    .fi-fo-file-upload-file-actions button[wire\:click*="remove"]:hover {
+                        background: #dc2626 !important;
+                    }
+                    
+                    /* Show icons in buttons */
+                    .fi-fo-file-upload-file-actions svg {
+                        width: 18px !important;
+                        height: 18px !important;
+                        display: block !important;
+                        stroke: currentColor !important;
+                        fill: none !important;
+                    }
+                    
+                    /* File item container */
+                    .fi-fo-file-upload-file {
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                        padding: 12px !important;
+                        background: #f3f4f6 !important;
+                        border-radius: 8px !important;
+                        gap: 12px !important;
+                    }
+                    
+                    .dark .fi-fo-file-upload-file {
+                        background: #374151 !important;
+                    }
+                    
+                    /* Hide all action buttons/icons at the end of file upload */
+                    .fi-fo-file-upload-file button,
+                    .fi-fo-file-upload-file > button,
+                    .fi-fo-file-upload-file-actions,
+                    .fi-fo-file-upload-file-actions *,
+                    button[wire\:click*="removeUploadedFile"],
+                    button[x-on\:click*="download"],
+                    .fi-fo-file-upload-file svg,
+                    .fi-fo-file-upload-file [role="button"] {
+                        display: none !important;
+                        visibility: hidden !important;
+                        opacity: 0 !important;
+                        width: 0 !important;
+                        height: 0 !important;
+                        pointer-events: none !important;
+                    }
+                    
+                    /* Only show file name */
+                    .fi-fo-file-upload-file {
+                        pointer-events: none !important;
+                    }
+                    
+                    .fi-fo-file-upload-file-name {
+                        pointer-events: auto !important;
+                    }
+                    
+                    /* File upload item - show download button prominently */
+                    .fi-fo-file-upload-file {
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: space-between !important;
+                        padding: 12px !important;
+                        background: #f3f4f6 !important;
+                        border-radius: 8px !important;
+                        margin-bottom: 8px !important;
+                    }
+                    
+                    /* Dark theme file upload item */
+                    .dark .fi-fo-file-upload-file {
+                        background: #374151 !important;
+                    }
+                    
+                    /* Download button styling */
+                    .fi-fo-file-upload-file-actions {
+                        display: flex !important;
+                        gap: 8px !important;
+                    }
+                    
+                    /* Download button */
+                    .fi-fo-file-upload-file-actions button,
+                    .fi-fo-file-upload-file-actions a {
+                        background: #3b82f6 !important;
+                        color: white !important;
+                        padding: 8px 16px !important;
+                        border-radius: 6px !important;
+                        font-weight: 500 !important;
+                        text-decoration: none !important;
+                        display: inline-flex !important;
+                        align-items: center !important;
+                    }
+                    
+                    /* Download button hover */
+                    .fi-fo-file-upload-file-actions button:hover,
+                    .fi-fo-file-upload-file-actions a:hover {
+                        background: #2563eb !important;
+                    }
+                    
+                    /* Remove button (X) */
+                    .fi-fo-file-upload-file-actions button[wire\\:click*="removeUploadedFile"] {
+                        background: #ef4444 !important;
+                    }
+                    
+                    /* Remove button hover */
+                    .fi-fo-file-upload-file-actions button[wire\\:click*="removeUploadedFile"]:hover {
+                        background: #dc2626 !important;
+                    }
+                    
+                    /* Add "Download File" text via CSS */
+                    .fi-fo-file-upload-file-actions a[download]::before,
+                    .fi-fo-file-upload-file-actions button[x-on\\:click*="download"]::before {
+                        content: "Download File" !important;
+                        margin-right: 4px !important;
+                    }
+                    
+                    /* Hide file size and name info */
+                    .fi-fo-file-upload-file-info {
+                        display: none !important;
+                    }
+                    
                     /* Body and wrapper - no padding */
                     .fi-body,
                     .fi-layout {
@@ -307,6 +502,54 @@ class AdminPanelProvider extends PanelProvider
                     /* Dark theme - page background */
                     .dark .fi-page {
                         background: #0f172a !important;
+                    }
+                    
+                    /* Filter dropdown - light theme */
+                    .fi-dropdown-panel,
+                    .fi-ta-filters-dropdown {
+                        background: white !important;
+                        color: #1f2937 !important;
+                    }
+                    
+                    /* Filter dropdown items */
+                    .fi-dropdown-panel *,
+                    .fi-ta-filters-dropdown * {
+                        color: #1f2937 !important;
+                    }
+                    
+                    /* Dark theme - filter dropdown */
+                    .dark .fi-dropdown-panel,
+                    .dark .fi-ta-filters-dropdown {
+                        background: #1f2937 !important;
+                        border: 1px solid #374151 !important;
+                    }
+                    
+                    /* Dark theme - filter dropdown text */
+                    .dark .fi-dropdown-panel *,
+                    .dark .fi-ta-filters-dropdown * {
+                        color: white !important;
+                    }
+                    
+                    /* Dark theme - filter inputs */
+                    .dark .fi-dropdown-panel input,
+                    .dark .fi-dropdown-panel select,
+                    .dark .fi-ta-filters-dropdown input,
+                    .dark .fi-ta-filters-dropdown select {
+                        background: #111827 !important;
+                        color: white !important;
+                        border-color: #374151 !important;
+                    }
+                    
+                    /* Dark theme - filter labels */
+                    .dark .fi-dropdown-panel label,
+                    .dark .fi-ta-filters-dropdown label {
+                        color: #d1d5db !important;
+                    }
+                    
+                    /* Dark theme - filter buttons */
+                    .dark .fi-dropdown-panel button,
+                    .dark .fi-ta-filters-dropdown button {
+                        color: white !important;
                     }
                     
                     /* File upload - show default Filament drag & drop */

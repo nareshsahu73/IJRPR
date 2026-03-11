@@ -139,6 +139,7 @@ class PaperResource extends Resource
                         'Paper Accepted' => 'Paper Accepted',
                         'Paper Rejected' => 'Paper Rejected',
                         'Under Review' => 'Under Review',
+                        'Paper Published' =>  'Paper Published',
                     ])
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin),
 
@@ -413,6 +414,7 @@ class PaperResource extends Resource
                         'Paper Accepted' => 'Paper Accepted',
                         'Paper Rejected' => 'Paper Rejected',
                         'Under Review' => 'Under Review',
+                        'Paper Published' =>  'Paper Published',
                     ]),
                 Tables\Filters\SelectFilter::make('position')
                     ->label('Position')

@@ -95,6 +95,16 @@ class PaperController extends Controller
         return redirect()->route('papers.index')->with('success', 'Paper deleted successfully!');
     }
 
+    public function checkStatus(Paper $paper)
+    {
+        // Check if user owns the paper
+        if (auth()->id() !== $paper->created_by) {
+            abort(403, 'Unauthorized access');
+        }
+
+        return view('papers.status', compact('paper'));
+    }
+
     public function adminDownload(Request $request, $id)
     {
         $paper = Paper::findOrFail($id);

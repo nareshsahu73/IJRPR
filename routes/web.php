@@ -26,6 +26,9 @@ Route::middleware(['auth'])->group(function () {
     
     // Use PaperController download method (works with existing files)
     Route::get('/papers/{paper}/download', [PaperController::class, 'download'])->name('papers.download');
+    
+    // Check paper status
+    Route::get('/papers/{paper}/status', [PaperController::class, 'checkStatus'])->name('papers.status');
 });
 
 // Admin panel file download route (must be authenticated)

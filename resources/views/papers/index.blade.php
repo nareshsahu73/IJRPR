@@ -53,7 +53,9 @@
                                 <!-- <a href="{{ route('papers.show', $paper) }}" 
                                    class="text-blue-500 hover:underline mr-3">View</a> -->
                                 <a href="{{ route('papers.download', $paper) }}" 
-                                   class="text-green-500 hover:underline">Download</a>
+                                   class="text-green-500 hover:underline mr-3">Download</a>
+                                <a href="{{ route('papers.status', $paper) }}" 
+                                   class="text-purple-500 hover:underline">Check Status</a>
                             </td>
                         </tr>
                     @endforeach

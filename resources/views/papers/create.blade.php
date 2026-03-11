@@ -28,14 +28,14 @@
 
         <div class="mb-4">
             <label class="block text-gray-700 mb-2">Corresponding Author Name *</label>
-            <p class="text-sm text-gray-600 mb-2">
-                Only One Author Name is required. Name of all authors should be written on MS word file of Paper (Below Title of Paper). Only will get E-certificate
-            </p>
             <input type="text" name="author_name" value="{{ old('author_name') }}" required
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             @error('author_name')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
+            <p class="text-sm text-gray-600 mb-2">
+                Only One Author Name is required. Name of all authors should be written on MS word file of Paper (Below Title of Paper). Only will get E-certificate
+            </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -46,6 +46,9 @@
                 @error('cer_author_name')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
+                  <p class="text-sm text-gray-600 mb-2">
+                    The email address of the author submitting the paper 
+                 </p>
             </div>
 
             <div>
@@ -68,7 +71,16 @@
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Higher Qualification *</label>
+            <label class="block text-gray-700 mb-2">Highest Qualification *</label>
+           <input type="text" name="highest_qualification" value="{{ old('highest_qualification') }}" required
+                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            @error('highest_qualification')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Position/Post *</label>
             <select name="position" required
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">Choose</option>
@@ -86,14 +98,14 @@
 
         <div class="mb-4">
             <label class="block text-gray-700 mb-2">Attach Paper *</label>
-            <p class="text-sm text-gray-600 mb-2">Only DOCX files accepted. Max file size: 5MB</p>
-            <input type="file" name="file" required accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+           <input type="file" name="file" required accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 onchange="validateFile(this)">
             <p id="file-error" class="text-red-500 text-sm mt-1 hidden">Please select a valid DOCX file</p>
             @error('file')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
+             <p class="text-sm text-gray-600 mb-2">Please Upload Word File (.docx) extension only, Maximum Size Allowed 5 MB Only</p>
         </div>
 
         <script>
@@ -149,7 +161,7 @@
         </script>
 
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Author Comment (If Any)</label>
+            <label class="block text-gray-700 mb-2">Author Comment </label>
             <textarea name="Abstract" rows="5"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('Abstract') }}</textarea>
             @error('Abstract')

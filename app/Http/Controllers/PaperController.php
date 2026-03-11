@@ -28,6 +28,7 @@ class PaperController extends Controller
             'contact_no' => 'required|string|max:20',
             'affiliation' => 'required|string|max:255',
             'position' => 'required|string',
+            'highest_qualification' => 'required|string',
             'Abstract' => 'nullable|string',
             'file' => 'required|file|mimes:docx|max:5120',
         ]);
@@ -42,6 +43,7 @@ class PaperController extends Controller
                 'contact_no' => $validated['contact_no'],
                 'affiliation' => $validated['affiliation'],
                 'position' => $validated['position'],
+                'highest_qualification' => $validated['highest_qualification'],
                 'Abstract' => $validated['Abstract'] ?? null,
                 'file_name' => $filePath,
                 'created_by' => auth()->id(),

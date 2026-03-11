@@ -25,8 +25,14 @@ class PaperResource extends Resource
         return $schema
             ->schema([
                 // Basic Fields (visible to all)
-                Forms\Components\TextInput::make('Title')
-                    ->label('Paper Title *')
+
+                Forms\Components\TextInput::make('id')
+                    ->label('Paper ID *')
+                    ->disabled()
+                    ->maxLength(300),
+
+                   Forms\Components\TextInput::make('Title')
+                    ->label('Paper Title*')
                     ->required()
                     ->maxLength(300),
 
@@ -57,6 +63,11 @@ class PaperResource extends Resource
                     ])
                     ->required(),
 
+                Forms\Components\TextInput::make('highest_qualification')
+                ->label('Highest Qualification*')
+                ->required()
+                ->maxLength(500),
+
                 Forms\Components\TextInput::make('affiliation')
                     ->label('Organization/Institute Name *')
                     ->required()
@@ -74,7 +85,7 @@ class PaperResource extends Resource
                         'Medium Priority Academic' => 'Medium Priority Academic',
                         'Low Priority Abroad' => 'Low Priority Abroad',
                     ])
-                    ->default('Medium Priority PG')
+                    ->placeholder('Select an option')
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin),
 
                 Forms\Components\FileUpload::make('file_name')
@@ -168,7 +179,7 @@ class PaperResource extends Resource
 
                 Forms\Components\TextInput::make('updated_at')
                     ->label('Last modified')
-                    ->disabled()
+                     ->disabled()
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin),
 
                 Forms\Components\TextInput::make('DOI')
@@ -181,15 +192,16 @@ class PaperResource extends Resource
                     ->maxLength(100)
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin),
 
-                Forms\Components\TextInput::make('Author')
-                    ->label('Highest Qualification')
-                    ->maxLength(200)
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
-
                 Forms\Components\TextInput::make('PageFrom')
                     ->label('File link')
                     ->maxLength(255)
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                Forms\Components\TextInput::make('certificate_link')
+                    ->label('Certificate Link')
+                    ->maxLength(255)
+                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    
 
                 Forms\Components\Textarea::make('Reference')
                     ->label('Comments')
@@ -197,10 +209,7 @@ class PaperResource extends Resource
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin)
                     ->columnSpanFull(),
 
-                Forms\Components\TextInput::make('certificate_link')
-                    ->label('Certificate Link')
-                    ->maxLength(255)
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+             
 
                 Forms\Components\FileUpload::make('formatted_doc')
                     ->label('Formatted Doc file')
@@ -253,7 +262,7 @@ class PaperResource extends Resource
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin),
 
                 Forms\Components\Textarea::make('more_data')
-                    ->label('Author Comments (If any,Optional)')
+                    ->label('Author Comments')
                     ->rows(3)
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin)
                     ->columnSpanFull(),
@@ -295,6 +304,11 @@ class PaperResource extends Resource
                     ->label('Corresponding Author')
                     ->searchable()
                     ->limit(30),
+
+                Tables\Columns\TextColumn::make('highest_qualification')
+                    ->label('Highest Qualification ')
+                    ->searchable()
+                    ->limit(30),
                 Tables\Columns\TextColumn::make('cer_author_name')
                     ->label('Email')
                     ->searchable()
@@ -303,7 +317,7 @@ class PaperResource extends Resource
                     ->label('Contact')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('position')
-                    ->label('Position')
+                    ->label('Position/Post')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'UG Student' => 'info',

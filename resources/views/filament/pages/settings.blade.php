@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-    <div style="min-width: 1000px; margin: 0 auto; background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+    <div style="min-width: 1200px; margin: 0 auto; background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
         <form wire:submit="save">
             {{ $this->form }}
 

@@ -135,11 +135,10 @@ class EditPaper extends EditRecord
         // Remove virtual field vol_issue_id
         unset($data['vol_issue_id']);
         
-        // Agar created_by nahi hai to current user ka ID set karo
-        if (empty($data['created_by'])) {
-            $data['created_by'] = auth()->id();
-        }
-
+        // IMPORTANT: Don't change created_by - keep original user
+        // Remove created_by from data to prevent overwriting
+        unset($data['created_by']);
+        
         return $data;
     }
 

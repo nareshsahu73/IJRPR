@@ -403,14 +403,52 @@ class AdminPanelProvider extends PanelProvider
                     .fi-page {
                         max-width: 100% !important;
                         width: 100% !important;
-                        padding: 0.75rem 5px !important;
+                        padding: 0.5rem 5px !important;
                         margin: 0 !important;
                     }
                     
                     /* Page header - 5px left/right padding */
                     .fi-page-header {
+                        max-width: 1200px !important;
+                        margin: 0 auto !important;
                         padding-left: 5px !important;
                         padding-right: 5px !important;
+                    }
+                    
+                    /* Page header wrapper - center with 1200px */
+                    .fi-page-header-wrapper,
+                    .fi-page-header-ctn,
+                    .fi-page-header > div {
+                        max-width: 1200px !important;
+                        margin: 0 auto !important;
+                        width: 100% !important;
+                    }
+                    
+                    /* Page heading - align with form border (force alignment) */
+                    .fi-header-heading,
+                    .fi-page-header h1,
+                    .fi-page-header-heading,
+                    .fi-simple-page h1,
+                    h1.text-3xl,
+                    .fi-page-header .fi-header-heading,
+                    [class*="fi-header"] h1,
+                    [class*="fi-page-header"] h1 {
+                        padding-left: 20px !important;
+                        padding-right: 20px !important;
+                        margin-left: 0 !important;
+                        margin-right: 0 !important;
+                    }
+                    
+                    /* Force all h1 in page header */
+                    .fi-page-header > * > h1,
+                    .fi-page-header > div > h1 {
+                        padding-left: 20px !important;
+                        max-width:1200px !important;
+                    }
+                    
+                    /* Header actions alignment */
+                    .fi-page-header-actions {
+                        padding-right: 20px !important;
                     }
                     
                     /* Page content inner - full width */
@@ -466,7 +504,7 @@ class AdminPanelProvider extends PanelProvider
                     form[wire\\:submit] {
                         max-width: 1200px !important;
                         margin: 0 auto !important;
-                        padding: 24px !important;
+                        padding: 20px !important;
                         background: white !important;
                         border: 1px solid #e5e7eb !important;
                         border-radius: 12px !important;
@@ -555,7 +593,50 @@ class AdminPanelProvider extends PanelProvider
                     /* File upload - show default Filament drag & drop */
                     .fi-fo-file-upload,
                     .fi-file-upload {
-                        min-height: 120px !important;
+                        min-height: 60px !important;
+                        margin-bottom: 8px !important;
+                    }
+                    
+                    .fi-header fi-header-heading{
+                    max-width : 1200px;
+                    }
+
+
+
+                    /* Reduce file upload field spacing */
+                    .fi-fo-field-wrp:has(.fi-fo-file-upload) {
+                        margin-bottom: 8px !important;
+                    }
+                    
+                    
+                    /* File upload dropzone - smaller */
+                    .fi-file-upload-dropzone {
+                        //padding: 8px !important;
+                        min-height: 50px !important;
+                    }
+                    
+                    /* File upload hint text - smaller */
+                    .fi-file-upload-hint {
+                        font-size: 0.75rem !important;
+                        padding: 4px 0 !important;
+                    }
+                    
+                    /* Comments/Textarea field - smaller height */
+                    textarea[id*="comment"],
+                    textarea[id*="Comment"],
+                    .fi-fo-textarea textarea {
+                        min-height: 60px !important;
+                        max-height: 100px !important;
+                    }
+                    
+                    /* Reduce spacing between form fields */
+                    .fi-fo-field-wrp {
+                        margin-bottom: 10px !important;
+                    }
+                    
+                    /* Form component wrapper - reduce gap */
+                    .fi-fo-component-ctn {
+                        gap: 8px !important;
                     }
                     
                     /* Show all drag & drop elements */

@@ -44,6 +44,18 @@ Route::middleware(['auth'])->group(function () {
 
 require __DIR__.'/auth.php';
 
+// Admin Two-Factor Authentication routes
+Route::middleware('guest')->group(function () {
+    Route::get('/admin/login', function () {
+        return view('admin.login');
+    })->name('admin.login');
+    
+    Route::post('/admin/2fa/send', [\App\Http\Controllers\Admin\TwoFactorController::class, 'sendCode'])->name('admin.2fa.send');
+    Route::get('/admin/2fa/verify', [\App\Http\Controllers\Admin\TwoFactorController::class, 'showVerifyForm'])->name('admin.2fa.verify');
+    Route::post('/admin/2fa/verify', [\App\Http\Controllers\Admin\TwoFactorController::class, 'verifyCode'])->name('admin.2fa.verify.code');
+    Route::get('/admin/2fa/verify-token/{token}', [\App\Http\Controllers\Admin\TwoFactorController::class, 'verifyToken'])->name('admin.2fa.verify.token');
+});
+
 // Override Filament admin logout to redirect to home page
 Route::post('/admin/logout', function (Illuminate\Http\Request $request) {
     \Illuminate\Support\Facades\Auth::guard('web')->logout();

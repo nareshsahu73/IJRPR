@@ -16,6 +16,9 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'two_factor_code',
+        'two_factor_expires_at',
+        'two_factor_token',
     ];
 
     protected $hidden = [

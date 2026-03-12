@@ -27,9 +27,15 @@ class AuthenticatedSessionController extends Controller
             // Regenerate session to prevent fixation attacks
             $request->session()->regenerate();
             
-            // Check if user is admin and redirect accordingly
+            // Check if user is admin - block admin from user login
             if (auth()->user()->is_admin) {
-                return redirect('/admin');
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                
+                return back()->withErrors([
+                    'email' => 'Admin users must login through /admin page.',
+                ])->onlyInput('email');
             }
             
             return redirect()->intended('dashboard');

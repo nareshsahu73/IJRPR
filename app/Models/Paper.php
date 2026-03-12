@@ -47,7 +47,8 @@ class Paper extends Model
         'plagiarism_report',
         'plagiarism_percentage',
         'email_template_id',
-        'highest_qualification'
+        'highest_qualification',
+        'ip_address',
     ];
     
     protected $appends = ['vol_issue_id'];

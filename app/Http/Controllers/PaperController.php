@@ -47,6 +47,7 @@ class PaperController extends Controller
                 'Abstract' => $validated['Abstract'] ?? null,
                 'file_name' => $filePath,
                 'created_by' => auth()->id(),
+                'ip_address' => $request->ip(),
             ]);
 
             return redirect()->route('papers.index')->with('success', 'Paper submitted successfully!');
@@ -58,7 +59,7 @@ class PaperController extends Controller
     public function show(Paper $paper)
     {
         // Check if user owns the paper or is admin
-        if (auth()->id() !== $paper->created_by || !auth()->user()->is_admin) {
+        if (auth()->id() !== (int) $paper->created_by || !auth()->user()->is_admin) {
             abort(403, 'Unauthorized access');
         }
 
@@ -85,7 +86,7 @@ class PaperController extends Controller
     public function destroy(Paper $paper)
     {
         // Check if user owns the paper or is admin
-        if (auth()->id() !== $paper->created_by && !auth()->user()->is_admin) {
+        if (auth()->id() !== (int) $paper->created_by && !auth()->user()->is_admin) {
             abort(403, 'Unauthorized to delete this paper');
         }
         
@@ -98,7 +99,7 @@ class PaperController extends Controller
     public function checkStatus(Paper $paper)
     {
         // Check if user owns the paper
-        if (auth()->id() !== $paper->created_by) {
+        if (auth()->id() !== (int)$paper->created_by) {
             abort(403, 'Unauthorized access');
         }
 

@@ -501,14 +501,25 @@ class AdminPanelProvider extends PanelProvider
                     /* Form wrapper - centered with border */
                     .fi-fo,
                     .fi-form,
-                    form[wire\\:submit] {
+                    form[wire\\:submit],
+                    .settings-form-wrapper {
                         max-width: 1200px !important;
+                        width: 100% !important;
                         margin: 0 auto !important;
                         padding: 20px !important;
                         background: white !important;
                         border: 1px solid #e5e7eb !important;
                         border-radius: 12px !important;
                         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+                    }
+                    
+                    /* Settings form - ensure full width */
+                    .settings-form-wrapper .fi-fo,
+                    .settings-form-wrapper .fi-form {
+                        max-width: 100% !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        padding: 0 !important;
                     }
                     
                     /* Dark theme - form background black, text white */

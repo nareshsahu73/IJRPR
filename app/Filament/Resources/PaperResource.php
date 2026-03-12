@@ -183,10 +183,16 @@ class PaperResource extends Resource
                      ->disabled()
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin),
 
-                Forms\Components\TextInput::make('DOI')
+                Forms\Components\TextInput::make('ip_address')
                     ->label('IP Address')
-                    ->maxLength(200)
+                    ->disabled()
+                    ->helperText('Automatically captured when paper is submitted')
                     ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+
+                // Forms\Components\TextInput::make('DOI')
+                //     ->label('DOI')
+                //     ->maxLength(200)
+                //     ->visible(fn () => auth()->check() && auth()->user()->is_admin),
 
                 Forms\Components\TextInput::make('invoice_no')
                     ->label('Invoice No')

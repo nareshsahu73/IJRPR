@@ -46,6 +46,7 @@ class Paper extends Model
         'formatted_doc',
         'plagiarism_report',
         'plagiarism_percentage',
+        'plagiarism_checked_by',
         'email_template_id',
         'highest_qualification',
         'ip_address',

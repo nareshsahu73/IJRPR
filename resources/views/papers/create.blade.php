@@ -33,22 +33,31 @@
             @error('author_name')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
-            <p class="text-sm text-gray-600 mb-2">
+            <p class="text-red-600 text-sm mt-2 font-medium">
                 Only One Author Name is required. Name of all authors should be written on MS word file of Paper (Below Title of Paper). Only will get E-certificate
+            </p>
+        </div>
+
+        <div class="mb-4">
+            <p class="text-sm text-gray-700 mb-2">
+                Author can use the email of account holder if they wish (by clicking check box)
             </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-                <label class="block text-gray-700 mb-2">Corresponding Author Email *</label>
-                <input type="email" name="cer_author_name" value="{{ old('cer_author_name') }}" required
-                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label class="block text-gray-700 mb-2">Author Email * (Same as the email of account holder)</label>
+                <div class="flex items-center gap-2">
+                    <label class="flex items-center whitespace-nowrap">
+                        <input type="checkbox" id="use_account_email" class="mr-1">
+                        <span class="text-sm text-gray-700"></span>
+                    </label>
+                    <input type="email" name="cer_author_name" id="cer_author_name" value="{{ old('cer_author_name') }}" required
+                        class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
                 @error('cer_author_name')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
-                  <p class="text-sm text-gray-600 mb-2">
-                    The email address of the author submitting the paper 
-                 </p>
             </div>
 
             <div>
@@ -61,6 +70,22 @@
             </div>
         </div>
 
+        <script>
+        // Auto-fill email from logged-in user account
+        document.getElementById('use_account_email').addEventListener('change', function() {
+            const emailInput = document.getElementById('cer_author_name');
+            if (this.checked) {
+                emailInput.value = '{{ auth()->user()->email }}';
+                emailInput.readOnly = true;
+                emailInput.classList.add('bg-gray-100');
+            } else {
+                emailInput.value = '{{ old('cer_author_name') }}';
+                emailInput.readOnly = false;
+                emailInput.classList.remove('bg-gray-100');
+            }
+        });
+        </script>
+
         <div class="mb-4">
             <label class="block text-gray-700 mb-2">Organization/Institute Name *</label>
             <input type="text" name="affiliation" value="{{ old('affiliation') }}" required
@@ -70,14 +95,26 @@
             @enderror
         </div>
 
-        <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Highest Qualification *</label>
-           <input type="text" name="highest_qualification" value="{{ old('highest_qualification') }}" required
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            @error('highest_qualification')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-gray-700 mb-2">Highest Qualification *</label>
+                <input type="text" name="highest_qualification" value="{{ old('highest_qualification') }}" required
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                @error('highest_qualification')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label class="block text-gray-700 mb-2">Country *</label>
+                <input type="text" name="Keywords" value="{{ old('Keywords') }}" required
+                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                @error('Keywords')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
         </div>
+
 
         <div class="mb-4">
             <label class="block text-gray-700 mb-2">Position/Post *</label>
@@ -89,6 +126,7 @@
                 <option value="PhD Student" {{ old('position') == 'PhD Student' ? 'selected' : '' }}>PhD Student</option>
                 <option value="Academic Person" {{ old('position') == 'Academic Person' ? 'selected' : '' }}>Academic Person</option>
                 <option value="Industry Person" {{ old('position') == 'Industry Person' ? 'selected' : '' }}>Industry Person</option>
+               <option value="Industry Person" {{ old('position') == 'Research Scholar' ? 'selected' : '' }}>Research Scholar</option>
                 <option value="Other" {{ old('position') == 'Other' ? 'selected' : '' }}>Other</option>
             </select>
             @error('position')
@@ -105,8 +143,9 @@
             @error('file')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
-             <p class="text-sm text-gray-600 mb-2">Please Upload Word File (.docx) extension only, Maximum Size Allowed 5 MB Only</p>
-        </div>
+             <p class="text-red-600 text-sm mt-2 font-medium">Please Upload Word File (.docx) extension only</p>
+
+            </div>
 
         <script>
         function validateFile(input) {
@@ -116,7 +155,7 @@
             if (file) {
                 const fileName = file.name.toLowerCase();
                 const fileSize = file.size;
-                const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
                 
                 // Check file extension
                 if (!fileName.endsWith('.docx')) {
@@ -128,7 +167,7 @@
                 
                 // Check file size
                 if (fileSize > maxSize) {
-                    errorMsg.textContent = 'File size must be less than 5MB';
+                    errorMsg.textContent = 'Please Upload Word File (.docx) extension only, Maximum Size Allowed 10 MB Only.if file size above 10 MB then send paper to editor@ijrpr.com';
                     errorMsg.classList.remove('hidden');
                     input.value = '';
                     return false;
@@ -161,18 +200,21 @@
         </script>
 
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Author Comment </label>
+            <label class="block text-gray-700 mb-2">Author Comment (If any,Optional)</label>
             <textarea name="Abstract" rows="5"
                 class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('Abstract') }}</textarea>
             @error('Abstract')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
             @enderror
+             <p class="text-red-600 text-sm mt-2 font-medium">
+                यहाँ किसी भी Author/Co-author/Guide/Team Member के नाम न लिखें। सभी लेखकों के नाम पेपर की MS Word फाइल पर (below Title of paper) लिखे होने चाहिए। सभी ऑथर्स जिनका नाम पेपर की MS वर्ड फाइल पर लिखा होगा केवल उन्हीं ऑथर्स को सर्टिफिकेट इश्यू होगा
+            </p>
         </div>
 
         <div class="mb-6">
             <label class="flex items-start">
                 <input type="checkbox" name="declaration" required class="mt-1 mr-2">
-                <span class="text-sm text-gray-700">
+                <span class="text-red-600 text-sm mt-2 font-medium">
                     Important Instruction: I have written name of Author [with all team members/Co-authors/Guide/Mentor (If More than One author)] on Ms word File of paper below "Title of Paper". I know only Author(s) who name written on Paper will get E-certificate
                 </span>
             </label>

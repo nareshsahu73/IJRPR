@@ -51,9 +51,7 @@ class TwoFactorController extends Controller
                     <p>Your admin login verification code is:</p>
                     <h1 style='font-size: 32px; color: #3b82f6; letter-spacing: 5px;'>{$code}</h1>
                     <p>This code will expire in 10 minutes.</p>
-                    <p>Alternatively, you can click the link below to login directly:</p>
-                    <p><a href='{$loginLink}' style='background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;'>Login to Admin Panel</a></p>
-                    <p>If you didn't request this, please ignore this email.</p>
+                 
                     <br>
                     <p>Regards,<br>IJRPR Team</p>
                 ";

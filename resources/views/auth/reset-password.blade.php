@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - IJRPR</title>
+    <title>Reset Password - IJRPR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-        .register-card {
+        .login-card {
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
@@ -53,10 +53,13 @@
         .btn-primary:hover {
             background: #7c3aed;
         }
-        .error-text {
-            color: #dc2626;
-            font-size: 12px;
-            margin-top: 4px;
+        .error-box {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
         }
         .password-requirements {
             background: #f3f4f6;
@@ -65,7 +68,6 @@
             padding: 12px;
             font-size: 12px;
             color: #4b5563;
-            margin-top: 8px;
         }
         .password-requirements ul {
             list-style: disc;
@@ -79,44 +81,46 @@
 </head>
 <body>
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div class="register-card max-w-md w-full p-8">
+        <div class="login-card max-w-md w-full p-8">
             <div class="text-center mb-8">
-                <h2 class="text-3xl font-bold text-gray-900">Register</h2>
-                <p class="mt-2 text-sm text-gray-600">Create your IJRPR account</p>
+                <h2 class="text-3xl font-bold text-gray-900">
+                    Reset Password
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Enter your new password
+                </p>
             </div>
-            
-            <form method="POST" action="{{ route('register') }}" class="space-y-5">
+
+            <form action="{{ route('password.update') }}" method="POST" class="space-y-5">
                 @csrf
+                <input type="hidden" name="token" value="{{ $token }}">
+
+                @if($errors->any())
+                    <div class="error-box">
+                        @foreach($errors->all() as $error)
+                            <p>{{ $error }}</p>
+                        @endforeach
+                    </div>
+                @endif
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Name<span class="text-red-500">*</span>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        Email address<span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="name" value="{{ old('name') }}" required
-                        class="input-field" placeholder="Enter your full name">
-                    @error('name')
-                        <p class="error-text">{{ $message }}</p>
-                    @enderror
+                    <input id="email" name="email" type="email" required
+                        class="input-field"
+                        placeholder="Enter your email"
+                        value="{{ old('email') }}">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Email<span class="text-red-500">*</span>
-                    </label>
-                    <input type="email" name="email" value="{{ old('email') }}" required
-                        class="input-field" placeholder="Enter your email">
-                    @error('email')
-                        <p class="error-text">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Password<span class="text-red-500">*</span>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        New Password<span class="text-red-500">*</span>
                     </label>
                     <div class="input-wrapper">
-                        <input id="password" type="password" name="password" required
-                            class="input-field" placeholder="Enter your password">
+                        <input id="password" name="password" type="password" required
+                            class="input-field"
+                            placeholder="Enter new password">
                         <span class="password-toggle" onclick="togglePassword('password', 'eye-icon-1')">
                             <svg id="eye-icon-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -124,28 +128,16 @@
                             </svg>
                         </span>
                     </div>
-                    @error('password')
-                        <p class="error-text">{{ $message }}</p>
-                    @enderror
-                    <div class="password-requirements">
-                        <strong>Password Requirements:</strong>
-                        <ul>
-                            <li>At least 12 characters long</li>
-                            <li>At least one uppercase letter (A-Z)</li>
-                            <li>At least one lowercase letter (a-z)</li>
-                            <li>At least one number (0-9)</li>
-                            <li>At least one special character (!@#$%^&*)</li>
-                        </ul>
-                    </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
                         Confirm Password<span class="text-red-500">*</span>
                     </label>
                     <div class="input-wrapper">
-                        <input id="password_confirmation" type="password" name="password_confirmation" required
-                            class="input-field" placeholder="Confirm your password">
+                        <input id="password_confirmation" name="password_confirmation" type="password" required
+                            class="input-field"
+                            placeholder="Confirm new password">
                         <span class="password-toggle" onclick="togglePassword('password_confirmation', 'eye-icon-2')">
                             <svg id="eye-icon-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -155,14 +147,28 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary">
-                    Register
-                </button>
+                <div class="password-requirements">
+                    <strong>Password Requirements:</strong>
+                    <ul>
+                        <li>At least 12 characters long</li>
+                        <li>At least one uppercase letter (A-Z)</li>
+                        <li>At least one lowercase letter (a-z)</li>
+                        <li>At least one number (0-9)</li>
+                        <li>At least one special character (!@#$%^&*)</li>
+                    </ul>
+                </div>
 
-                <p class="text-center text-sm text-gray-600">
-                    Already have an account? 
-                    <a href="{{ route('login') }}" class="text-purple-600 hover:text-purple-700 font-semibold">Login</a>
-                </p>
+                <div>
+                    <button type="submit" class="btn-primary">
+                        Reset Password
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <a href="/login" class="text-sm text-purple-600 hover:text-purple-700">
+                        ← Back to login
+                    </a>
+                </div>
             </form>
         </div>
     </div>

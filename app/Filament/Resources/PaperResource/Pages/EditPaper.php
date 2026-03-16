@@ -136,8 +136,13 @@ class EditPaper extends EditRecord
         unset($data['vol_issue_id']);
         
         // IMPORTANT: Don't change created_by - keep original user
-        // Remove created_by from data to prevent overwriting
         unset($data['created_by']);
+
+        // If plagiarism_checked_by is already set by a different user, don't overwrite it
+        $record = $this->record;
+        if ($record && $record->plagiarism_checked_by && $record->plagiarism_checked_by !== auth()->id()) {
+            $data['plagiarism_checked_by'] = $record->plagiarism_checked_by;
+        }
         
         return $data;
     }

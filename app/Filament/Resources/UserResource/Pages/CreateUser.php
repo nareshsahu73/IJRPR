@@ -17,8 +17,8 @@ class CreateUser extends CreateRecord
             $data['password'] = Hash::make($data['password']);
         }
         
-        // Set is_admin to false by default (regular user)
-        $data['is_admin'] = false;
+        // Use the value from toggle, default to false if not set
+        $data['is_admin'] = (bool) ($data['is_admin'] ?? false);
         
         // Remove password_confirmation as it's not needed in database
         unset($data['password_confirmation']);

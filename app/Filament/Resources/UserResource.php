@@ -49,6 +49,11 @@ class UserResource extends Resource
                     ->label('Confirm Password')
                     ->same('password')
                     ->helperText('Must match the password field'),
+                Forms\Components\Toggle::make('is_admin')
+                    ->label('Admin Access')
+                    ->helperText('Enable to give this user admin panel access')
+                    ->onColor('success')
+                    ->offColor('danger'),
             ]);
     }
 
@@ -68,7 +73,12 @@ class UserResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('is_admin')
+                    ->label('User Type')
+                    ->options([
+                        '1' => 'Admin',
+                        '0' => 'Normal User',
+                    ]),
             ])
             ->actions([
                 Actions\EditAction::make(),

@@ -24,28 +24,43 @@ class PaperController extends Controller
         $validated = $request->validate([
             'Title' => 'required|string|max:300',
             'author_name' => 'required|string|max:500',
-            'cer_author_name' => 'required|email',
+            'cer_author_name' => 'required|email|max:255',
             'contact_no' => 'required|string|max:20',
             'affiliation' => 'required|string|max:255',
-            'position' => 'required|string',
-            'highest_qualification' => 'required|string',
-            'Abstract' => 'nullable|string',
-            'file' => 'required|file|mimes:docx|max:5120',
+            'position' => 'required|string|in:UG Student,PG Student,PhD Student,Academic Person,Industry Person,Research Scholar,Other',
+            'highest_qualification' => 'required|string|max:255',
+            'Keywords' => 'required|string|max:255',
+            'Abstract' => 'nullable|string|max:5000',
+            'file' => 'required|file|max:10240',
+        ], [
+            'file.max' => 'The file size must not exceed 10MB.',
+            'position.in' => 'Invalid position selected.',
         ]);
+
+        // Manual DOCX validation
+        $file = $request->file('file');
+        $extension = strtolower($file->getClientOriginalExtension());
+        
+        if ($extension !== 'docx') {
+            return back()->withErrors(['file' => 'Only DOCX files are allowed.'])->withInput();
+        }
 
         try {
             $filePath = $request->file('file')->store('papers', 'public');
 
+            // Sanitize all text inputs to prevent XSS
             auth()->user()->papers()->create([
-                'Title' => $validated['Title'],
-                'author_name' => $validated['author_name'],
-                'cer_author_name' => $validated['cer_author_name'],
-                'contact_no' => $validated['contact_no'],
-                'affiliation' => $validated['affiliation'],
-                'position' => $validated['position'],
-                'highest_qualification' => $validated['highest_qualification'],
-                'Abstract' => $validated['Abstract'] ?? null,
+                'Title' => htmlspecialchars($validated['Title'], ENT_QUOTES, 'UTF-8'),
+                'author_name' => htmlspecialchars($validated['author_name'], ENT_QUOTES, 'UTF-8'),
+                'cer_author_name' => filter_var($validated['cer_author_name'], FILTER_SANITIZE_EMAIL),
+                'contact_no' => htmlspecialchars($validated['contact_no'], ENT_QUOTES, 'UTF-8'),
+                'affiliation' => htmlspecialchars($validated['affiliation'], ENT_QUOTES, 'UTF-8'),
+                'position' => htmlspecialchars($validated['position'], ENT_QUOTES, 'UTF-8'),
+                'highest_qualification' => htmlspecialchars($validated['highest_qualification'], ENT_QUOTES, 'UTF-8'),
+                'Keywords' => htmlspecialchars($validated['Keywords'], ENT_QUOTES, 'UTF-8'),
+                'Abstract' => $validated['Abstract'] ? htmlspecialchars($validated['Abstract'], ENT_QUOTES, 'UTF-8') : null,
                 'file_name' => $filePath,
+                'paper_status' => 'Under Review',
                 'created_by' => auth()->id(),
                 'ip_address' => $request->ip(),
             ]);

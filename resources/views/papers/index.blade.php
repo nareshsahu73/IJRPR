@@ -41,16 +41,16 @@
                     </td>
 
                     <td class="px-5 py-4">
-                        {{ Str::limit($paper->Title ?? 'N/A', 35) }}
+                        {{ e(Str::limit($paper->Title ?? 'N/A', 35)) }}
                     </td>
 
                     <td class="px-5 py-4">
-                        {{ $paper->author_name ?? 'N/A' }}
+                        {{ e($paper->author_name ?? 'N/A') }}
                     </td>
 
                     <td class="px-5 py-4">
                         <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
-                            {{ $paper->position ?? 'N/A' }}
+                            {{ e($paper->position ?? 'N/A') }}
                         </span>
                     </td>
 
@@ -66,7 +66,7 @@
 
                                 {{ $paper->paper_status == 'Under Review' ? 'bg-yellow-100 text-yellow-700' : '' }}
                             ">
-                                {{ $paper->paper_status }}
+                                {{ e($paper->paper_status) }}
                             </span>
 
                         @else

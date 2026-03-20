@@ -9,14 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('papers', function (Blueprint $table) {
-            $table->string('highest_qualification', 100)->nullable()->after('affiliation');
+            $table->text('author_comment')->nullable()->after('ip_address');
         });
     }
 
     public function down(): void
     {
         Schema::table('papers', function (Blueprint $table) {
-            $table->dropColumn('highest_qualification');
+            $table->dropColumn('author_comment');
         });
     }
 };

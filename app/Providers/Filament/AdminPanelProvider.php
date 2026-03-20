@@ -611,6 +611,12 @@ class AdminPanelProvider extends PanelProvider
                     max-width : 1200px;
                     }
 
+                    /* Allow text selection in table cells */
+                    .fi-ta-cell, .fi-ta-cell * {
+                        user-select: text !important;
+                        -webkit-user-select: text !important;
+                    }
+
 
 
                     /* Reduce file upload field spacing */
@@ -660,8 +666,31 @@ class AdminPanelProvider extends PanelProvider
                     }
                 </style>'
             )
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->renderHook(
+                'panels::body.end',
+                fn () => '<script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        document.querySelectorAll("form").forEach(f => f.setAttribute("novalidate", true));
+                    });
+                    document.addEventListener("livewire:navigated", function() {
+                        document.querySelectorAll("form").forEach(f => f.setAttribute("novalidate", true));
+                    });
+
+                    // Allow text selection in table cells
+                    function enableTableTextSelection() {
+                        document.querySelectorAll(".fi-ta-cell").forEach(function(cell) {
+                            cell.addEventListener("mousedown", function(e) {
+                                e.stopPropagation();
+                            });
+                        });
+                    }
+                    document.addEventListener("DOMContentLoaded", enableTableTextSelection);
+                    document.addEventListener("livewire:navigated", enableTableTextSelection);
+                    document.addEventListener("livewire:update", enableTableTextSelection);
+                </script>'
+            )
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 \App\Filament\Widgets\StatsOverview::class,

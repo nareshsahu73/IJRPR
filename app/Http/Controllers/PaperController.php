@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendPaperReceivedEmail;
 use App\Models\Paper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -31,9 +32,9 @@ class PaperController extends Controller
             'highest_qualification' => 'required|string|max:255',
             'Keywords' => 'required|string|max:255',
             'Abstract' => 'nullable|string|max:5000',
-            'file' => 'required|file|max:10240',
+            'file' => 'required|file|max:15360',
         ], [
-            'file.max' => 'The file size must not exceed 10MB.',
+            'file.max' => 'Please Upload Word File (.docx) extension only, Maximum Size Allowed 15 MB Only. If file size above 15 MB then send paper to editor@ijrpr.com',
             'position.in' => 'Invalid position selected.',
         ]);
 
@@ -49,7 +50,7 @@ class PaperController extends Controller
             $filePath = $request->file('file')->store('papers', 'public');
 
             // Sanitize all text inputs to prevent XSS
-            auth()->user()->papers()->create([
+            $paper = auth()->user()->papers()->create([
                 'Title' => htmlspecialchars($validated['Title'], ENT_QUOTES, 'UTF-8'),
                 'author_name' => htmlspecialchars($validated['author_name'], ENT_QUOTES, 'UTF-8'),
                 'cer_author_name' => filter_var($validated['cer_author_name'], FILTER_SANITIZE_EMAIL),
@@ -58,12 +59,16 @@ class PaperController extends Controller
                 'position' => htmlspecialchars($validated['position'], ENT_QUOTES, 'UTF-8'),
                 'highest_qualification' => htmlspecialchars($validated['highest_qualification'], ENT_QUOTES, 'UTF-8'),
                 'Keywords' => htmlspecialchars($validated['Keywords'], ENT_QUOTES, 'UTF-8'),
-                'Abstract' => $validated['Abstract'] ? htmlspecialchars($validated['Abstract'], ENT_QUOTES, 'UTF-8') : null,
+                'Abstract' => !empty($validated['Abstract']) ? htmlspecialchars($validated['Abstract'], ENT_QUOTES, 'UTF-8') : null,
                 'file_name' => $filePath,
-                'paper_status' => 'Under Review',
+                'paper_status' => 'PaperUnderReview',
                 'created_by' => auth()->id(),
                 'ip_address' => $request->ip(),
+                'author_comment' => $request->input('author_comment') ? htmlspecialchars($request->input('author_comment'), ENT_QUOTES, 'UTF-8') : null,
             ]);
+
+            // Dispatch email job to queue
+            SendPaperReceivedEmail::dispatch($paper)->onQueue('default');
 
             return redirect()->route('papers.index')->with('success', 'Paper submitted successfully!');
         } catch (\Exception $e) {

@@ -16,6 +16,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'is_staff',
         'two_factor_code',
         'two_factor_expires_at',
         'two_factor_token',
@@ -32,6 +33,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_staff' => 'boolean',
         ];
     }
 

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\PaperResource\Pages;
 
 use App\Filament\Resources\PaperResource;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Mail;
 
 class CreatePaper extends CreateRecord
 {
@@ -11,21 +12,89 @@ class CreatePaper extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Agar vol_issue_id selected hai to Volume aur Issue set karo
         if (!empty($data['vol_issue_id'])) {
             $volIssue = \App\Models\VolIssue::find($data['vol_issue_id']);
             if ($volIssue) {
                 $data['Volume'] = $volIssue->vol;
-                $data['Issue'] = $volIssue->issues;
+                $data['Issue']  = $volIssue->issues;
             }
         }
-        
-        // Remove virtual field vol_issue_id
+
         unset($data['vol_issue_id']);
-        
-        // Set created_by to current user
+
+        $required = ['Title', 'author_name', 'cer_author_name', 'contact_no', 'position', 'highest_qualification', 'affiliation', 'Keywords'];
+        foreach ($required as $field) {
+            if (empty($data[$field])) {
+                \Filament\Notifications\Notification::make()
+                    ->title(ucfirst(str_replace('_', ' ', $field)) . ' is required.')
+                    ->danger()->send();
+                $this->halt();
+            }
+        }
+
+        if (empty($data['file_name'])) {
+            \Filament\Notifications\Notification::make()
+                ->title('Attach Paper is required.')
+                ->danger()->send();
+            $this->halt();
+        }
+
         $data['created_by'] = auth()->id();
 
         return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        $paper = $this->record;
+
+        if (!$paper->cer_author_name) {
+            return;
+        }
+
+        try {
+            Mail::send([], [], function ($message) use ($paper) {
+                $authorName = $paper->author_name ?? 'Author';
+                $paperId    = $paper->id;
+                $paperTitle = $paper->Title ?? '';
+
+                $html = "
+                    <p>Dear <strong>{$authorName},</strong></p>
+                    <p>Thank you for submitting your paper to <strong>International Journal of Research Publication and Reviews (IJRPR)</strong>.</p>
+                    <p>Your paper has been received successfully.</p>
+                    <p><strong>Paper ID:</strong> IJRPR-{$paperId}<br>
+                    <strong>Paper Title:</strong> {$paperTitle}</p>
+                    <p>We will review your paper and notify you about the status shortly.</p>
+                    <br>
+                    <p>With Warm Regards,<br>
+                    <strong>IJRPR Team</strong><br>
+                    <strong>International Journal of Research Publication and Reviews (IJRPR)</strong><br>
+                    <a href='http://www.ijrpr.com'>http://www.ijrpr.com</a></p>
+                ";
+
+                $message->to($paper->cer_author_name)
+                    ->subject('Paper Received - IJRPR-' . $paperId)
+                    ->html($html)
+                    ->from(config('mail.from.address'), config('mail.from.name'));
+
+                // Attach the paper file if it exists
+                if ($paper->file_name) {
+                    $filePath = storage_path('app/public/' . $paper->file_name);
+                    if (file_exists($filePath)) {
+                        $attachName = $paper->original_filename ?? basename($paper->file_name);
+                        $message->attach($filePath, ['as' => $attachName]);
+                    }
+                }
+            });
+
+            \Filament\Notifications\Notification::make()
+                ->title('Paper created and confirmation email sent to author.')
+                ->success()->send();
+
+        } catch (\Exception $e) {
+            \Filament\Notifications\Notification::make()
+                ->title('Paper created but email failed: ' . $e->getMessage())
+                ->warning()->send();
+        }
     }
 }

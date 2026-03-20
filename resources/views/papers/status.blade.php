@@ -109,6 +109,60 @@
             </div>
         </div>
 
+    @elseif($paper->paper_status == 'CommentsToUser')
+        <!-- Comments to User Status -->
+        <div class="bg-orange-50 border-l-4 border-orange-500 p-6 rounded">
+            <h2 class="text-xl font-bold text-orange-800 mb-4">Paper Status: Comments to User</h2>
+            <div class="text-gray-700 space-y-3">
+                <p><strong>Dear Author</strong></p>
+                <p>Thanks for submitting the paper in IJRPR. Your <strong>Paper ID</strong> is <strong>IJRPR-{{ $paper->id }}.</strong></p>
+                <p><strong>Paper Title</strong> : {{ $paper->Title }}</p>
+                @if($paper->more_data)
+                <p><strong>Comments</strong>.<br>{{ $paper->more_data }}</p>
+                @endif
+                <div class="mt-4">
+                    <p>With Warm Regards</p>
+                    <p class="font-semibold">Editor-In Chief</p>
+                    <p><strong>International Journal of Research Publication and Reviews (IJRPR)</strong></p>
+                    <p><a href="http://www.ijrpr.com" target="_blank" class="text-blue-500 hover:underline">http://www.ijrpr.com</a></p>
+                </div>
+            </div>
+        </div>
+
+    @elseif($paper->paper_status == 'PaymentReceived')
+        <!-- Payment Received Status -->
+        <div class="bg-purple-50 border-l-4 border-purple-500 p-6 rounded">
+            <h2 class="text-xl font-bold text-purple-800 mb-4">Paper Status: Payment Received</h2>
+            <div class="text-gray-700 space-y-3">
+                <p>Dear <strong>{{ $paper->author_name }},</strong></p>
+                <p class="text-justify">This is to inform you that publication fee for your <strong>Paper Title</strong> : {{ $paper->Title }} has been received. Your Paper will be published within 24 to 36 hours from.</p>
+                <div class="mt-4">
+                    <p>With Warm Regards</p>
+                    <p class="font-semibold">IJRPR Team</p>
+                    <p><strong>International Journal of Research Publication and Reviews (IJRPR)</strong></p>
+                    <p><a href="http://www.ijrpr.com" target="_blank" class="text-blue-500 hover:underline">http://www.ijrpr.com</a></p>
+                </div>
+            </div>
+        </div>
+
+    @elseif($paper->paper_status == 'Paper Withdraw')
+        <!-- Paper Withdraw Status -->
+        <div class="bg-gray-50 border-l-4 border-gray-500 p-6 rounded">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Paper Status: Paper Withdraw</h2>
+            <div class="text-gray-700 space-y-3">
+                <p><strong>Dear Author</strong></p>
+                <p>Thanks for submitting the paper in IJRPR. Your <strong>Paper ID</strong> is <strong>IJRPR-{{ $paper->id }}.</strong></p>
+                <p><strong>Paper Title</strong> : {{ $paper->Title }}</p>
+                <p><strong>Comments:</strong><br>Manuscript withdrawn at the request of the author(s)</p>
+                <div class="mt-4">
+                    <p>With Warm Regards</p>
+                    <p class="font-semibold">Editor-In Chief</p>
+                    <p><strong>International Journal of Research Publication and Reviews (IJRPR)</strong></p>
+                    <p><a href="http://www.ijrpr.com" target="_blank" class="text-blue-500 hover:underline">http://www.ijrpr.com</a></p>
+                </div>
+            </div>
+        </div>
+
     @elseif($paper->paper_status == 'Paper Rejected')
         <!-- Paper Rejected Status -->
         <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded">
@@ -177,6 +231,32 @@
                     <p>With Warm Regards</p>
                     <p class="font-semibold">IJRPR Team</p>
                     <p>International Journal of Research Publication and Reviews</p>
+                    <p><a href="http://www.ijrpr.com" target="_blank" class="text-blue-500 hover:underline">http://www.ijrpr.com</a></p>
+                </div>
+            </div>
+        </div>
+
+    @elseif($paper->paper_status == 'PaperPublishedWithDOI')
+        <!-- Paper Published with DOI Status -->
+        <div class="bg-indigo-50 border-l-4 border-indigo-500 p-6 rounded">
+            <h2 class="text-xl font-bold text-indigo-800 mb-4">Paper Status: Paper Published with DOI</h2>
+            <div class="text-gray-700 space-y-3">
+                <p>Dear <strong>{{ $paper->author_name }},</strong></p>
+                <p>For any future communication you are advised to refer your <strong>Paper ID IJRPR-{{ $paper->id }}.</strong></p>
+                <p class="text-justify">DOI of paper has been allotted. DOI is <strong>{{ $paper->DOI }}</strong>. DOI has been updated on paper as well.<br>
+                <strong>Paper Title</strong>: "{{ $paper->Title }}" has been published in <strong>Volume {{ $paper->Volume }}, Issue {{ $paper->Issue }}</strong>.<br>
+                @if($paper->Reference)
+                    <strong>Link for your published article is <a href="{{ $paper->Reference }}" class="text-blue-600 underline" target="_blank">{{ $paper->Reference }}</a></strong>.<br>
+                @endif
+                @if($paper->certificate_link)
+                    <strong>Link for certificate <a href="{{ $paper->certificate_link }}" class="text-blue-600 underline" target="_blank">{{ $paper->certificate_link }}</a></strong>.
+                @endif
+                </p>
+                <p><strong>Note-</strong> If the DOI on the paper is not visible online, it could be because you have cached/downloaded old PDF file in your computer browser. To view New File Version of PDF in browser, Press Ctrl + F5 or open link in new browser or new computer/mobile.</p>
+                <div class="mt-4">
+                    <p>With Warm Regards</p>
+                    <p class="font-semibold">IJRPR Team</p>
+                    <p><strong>International Journal of Research Publication and Reviews (IJRPR)</strong></p>
                     <p><a href="http://www.ijrpr.com" target="_blank" class="text-blue-500 hover:underline">http://www.ijrpr.com</a></p>
                 </div>
             </div>

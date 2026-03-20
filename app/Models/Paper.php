@@ -50,9 +50,21 @@ class Paper extends Model
         'email_template_id',
         'highest_qualification',
         'ip_address',
+        'author_comment',
     ];
     
     protected $appends = ['vol_issue_id'];
+
+    protected static function booted(): void
+    {
+        static::creating(function ($paper) {
+            $lastId = static::max('id') ?? 199999;
+            $startFrom = 200000;
+            $base = max($lastId, $startFrom - 1);
+            $increment = [2, 3, 4][array_rand([2, 3, 4])];
+            $paper->id = $base + $increment;
+        });
+    }
 
     public $timestamps = false;
     

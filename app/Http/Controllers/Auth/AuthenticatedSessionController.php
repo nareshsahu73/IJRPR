@@ -49,20 +49,14 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request)
     {
         Auth::guard('web')->logout();
-        
-        // Clear all session data
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
-        // Clear Filament session if exists
         $request->session()->forget('filament');
-        
-        // Flush entire session
         $request->session()->flush();
-        
-        // Clear cache
+
         cache()->flush();
-        
-        return redirect('/');
+
+        return redirect()->route('login');
     }
 }

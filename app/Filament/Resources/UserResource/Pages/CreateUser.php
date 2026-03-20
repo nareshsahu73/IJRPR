@@ -18,7 +18,14 @@ class CreateUser extends CreateRecord
         }
         
         // Use the value from toggle, default to false if not set
-        $data['is_admin'] = (bool) ($data['is_admin'] ?? false);
+        $data['is_staff'] = (bool) ($data['is_staff'] ?? false);
+
+        // Staff users cannot be admin
+        if ($data['is_staff']) {
+            $data['is_admin'] = false;
+        } else {
+            $data['is_admin'] = (bool) ($data['is_admin'] ?? false);
+        }
         
         // Remove password_confirmation as it's not needed in database
         unset($data['password_confirmation']);

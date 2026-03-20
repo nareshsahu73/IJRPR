@@ -14,7 +14,7 @@ class PaperPolicy
 
     public function view(User $user, Paper $paper): bool
     {
-        return $user->id === $paper->user_id || $user->is_admin;
+        return $user->id === $paper->user_id || $user->is_admin || $user->is_staff;
     }
 
     public function create(User $user): bool
@@ -24,11 +24,11 @@ class PaperPolicy
 
     public function update(User $user, Paper $paper): bool
     {
-        return $user->id === $paper->user_id || $user->is_admin;
+        return $user->id === $paper->user_id || $user->is_admin || $user->is_staff;
     }
 
     public function delete(User $user, Paper $paper): bool
     {
-        return $user->id === $paper->user_id || $user->is_admin;
+        return $user->id === $paper->user_id || $user->is_admin || $user->is_staff;
     }
 }

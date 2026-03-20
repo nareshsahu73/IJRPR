@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('papers', function (Blueprint $table) {
-            $table->string('highest_qualification', 100)->nullable()->after('affiliation');
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('is_staff')->default(false)->after('is_admin');
         });
     }
 
     public function down(): void
     {
-        Schema::table('papers', function (Blueprint $table) {
-            $table->dropColumn('highest_qualification');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('is_staff');
         });
     }
 };

@@ -23,8 +23,8 @@ class TwoFactorController extends Controller
             return back()->withErrors(['email' => 'Invalid credentials']);
         }
 
-        if (!$user->is_admin) {
-            return back()->withErrors(['email' => 'Only admin users can login here']);
+        if (!$user->is_admin && !$user->is_staff) {
+            return back()->withErrors(['email' => 'Only admin/staff users can login here']);
         }
 
         // Generate 6-digit code
@@ -118,7 +118,9 @@ class TwoFactorController extends Controller
     {
         $user = User::where('two_factor_token', $token)
             ->where('two_factor_expires_at', '>', now())
-            ->where('is_admin', true)
+            ->where(function ($q) {
+                $q->where('is_admin', true)->orWhere('is_staff', true);
+            })
             ->first();
 
         if (!$user) {

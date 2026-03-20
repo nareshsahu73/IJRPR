@@ -15,8 +15,8 @@ class EnsureUserIsAdmin
             return redirect()->route('admin.login')->with('error', 'Please login to continue.');
         }
 
-        // Check if user is not admin - block normal users from admin panel
-        if (!auth()->user()->is_admin) {
+        // Check if user is not admin or staff - block normal users from admin panel
+        if (!auth()->user()->is_admin && !auth()->user()->is_staff) {
             // Logout the user
             auth()->logout();
             $request->session()->invalidate();

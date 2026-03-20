@@ -20,6 +20,26 @@ class UserResource extends Resource
     
     protected static ?int $navigationSort = 2;
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->is_admin === true;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->is_admin === true;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->is_admin === true;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->is_admin === true;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -49,11 +69,19 @@ class UserResource extends Resource
                     ->label('Confirm Password')
                     ->same('password')
                     ->helperText('Must match the password field'),
+                Forms\Components\Toggle::make('is_staff')
+                    ->label('Staff')
+                    ->helperText('Staff users cannot be given admin access')
+                    ->onColor('info')
+                    ->offColor('gray')
+                    ->reactive(),
                 Forms\Components\Toggle::make('is_admin')
                     ->label('Admin Access')
                     ->helperText('Enable to give this user admin panel access')
                     ->onColor('success')
-                    ->offColor('danger'),
+                    ->offColor('danger')
+                    ->disabled(fn ($get) => (bool) $get('is_staff'))
+                    ->dehydrated(true),
             ]);
     }
 
@@ -68,6 +96,9 @@ class UserResource extends Resource
                 Tables\Columns\IconColumn::make('is_admin')
                     ->boolean()
                     ->label('Admin'),
+                Tables\Columns\IconColumn::make('is_staff')
+                    ->boolean()
+                    ->label('Staff'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
@@ -79,17 +110,64 @@ class UserResource extends Resource
                         '1' => 'Admin',
                         '0' => 'Normal User',
                     ]),
+                Tables\Filters\SelectFilter::make('is_staff')
+                    ->label('Staff')
+                    ->options([
+                        '1' => 'Staff',
+                        '0' => 'Non-Staff',
+                    ]),
             ])
             ->actions([
                 Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                Actions\Action::make('deleteWithPassword')
+                    ->label('Delete')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('delete_password')
+                            ->label('Delete Password')
+                            ->password()
+                            ->required(),
+                    ])
+                    ->modalHeading('Delete User')
+                    ->modalDescription('This action cannot be undone. Enter the password to proceed.')
+                    ->modalSubmitActionLabel('Delete User')
+                    ->action(function ($record, array $data) {
+                        $attempts = session()->get('delete_user_attempts', 0);
+
+                        if ($attempts >= 10) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Too many attempts. Access locked for this session.')
+                                ->danger()->send();
+                            return;
+                        }
+
+                        if ($data['delete_password'] !== env('DELETE_PASSWORD')) {
+                            session()->put('delete_user_attempts', $attempts + 1);
+                            $remaining = 10 - ($attempts + 1);
+                            \Filament\Notifications\Notification::make()
+                                ->title('Incorrect password. ' . $remaining . ' attempts remaining.')
+                                ->danger()->send();
+                            return;
+                        }
+
+                        session()->forget('delete_user_attempts');
+                        $record->delete();
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('User deleted successfully.')
+                            ->success()->send();
+                    }),
             ])
             ->actionsColumnLabel('Actions')
             ->bulkActions([
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort(function ($query) {
+                return $query->orderByRaw('(is_admin = 1 OR is_staff = 1) DESC, created_at DESC');
+            });
     }
 
     public static function getPages(): array

@@ -120,7 +120,8 @@
                     <div class="input-wrapper">
                         <input id="password" name="password" type="password" required
                             class="input-field"
-                            placeholder="Enter new password">
+                            placeholder="Enter new password"
+                            onblur="validatePassword()">
                         <span class="password-toggle" onclick="togglePassword('password', 'eye-icon-1')">
                             <svg id="eye-icon-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -128,6 +129,7 @@
                             </svg>
                         </span>
                     </div>
+                    <div id="password-feedback" class="mt-2 text-sm hidden"></div>
                 </div>
 
                 <div>
@@ -137,7 +139,8 @@
                     <div class="input-wrapper">
                         <input id="password_confirmation" name="password_confirmation" type="password" required
                             class="input-field"
-                            placeholder="Confirm new password">
+                            placeholder="Confirm new password"
+                            onblur="validateConfirmPassword()">
                         <span class="password-toggle" onclick="togglePassword('password_confirmation', 'eye-icon-2')">
                             <svg id="eye-icon-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -145,6 +148,7 @@
                             </svg>
                         </span>
                     </div>
+                    <div id="confirm-feedback" class="mt-2 text-sm hidden"></div>
                 </div>
 
                 <div class="password-requirements">
@@ -165,7 +169,7 @@
                 </div>
 
                 <div class="text-center">
-                    <a href="/login" class="text-sm text-purple-600 hover:text-purple-700">
+                    <a href="{{ route('login') }}" class="text-sm text-purple-600 hover:text-purple-700">
                         ← Back to login
                     </a>
                 </div>
@@ -174,6 +178,39 @@
     </div>
 
     <script>
+        function validatePassword() {
+            const val = document.getElementById('password').value;
+            const fb  = document.getElementById('password-feedback');
+            const errors = [];
+
+            if (val.length < 12)          errors.push('At least 12 characters');
+            if (!/[A-Z]/.test(val))        errors.push('At least one uppercase letter');
+            if (!/[a-z]/.test(val))        errors.push('At least one lowercase letter');
+            if (!/[0-9]/.test(val))        errors.push('At least one number');
+            if (!/[@$!%*#?&]/.test(val))   errors.push('At least one special character (!@#$%^&*)');
+
+            fb.classList.remove('hidden');
+            if (errors.length === 0) {
+                fb.innerHTML = '<span style="color:#16a34a;">✔ Password looks good</span>';
+            } else {
+                fb.innerHTML = '<span style="color:#dc2626;">✘ ' + errors.join(' &bull; ') + '</span>';
+            }
+        }
+
+        function validateConfirmPassword() {
+            const pw  = document.getElementById('password').value;
+            const cpw = document.getElementById('password_confirmation').value;
+            const fb  = document.getElementById('confirm-feedback');
+
+            fb.classList.remove('hidden');
+            if (cpw === '' ) { fb.innerHTML = ''; return; }
+            if (pw === cpw) {
+                fb.innerHTML = '<span style="color:#16a34a;">✔ Passwords match</span>';
+            } else {
+                fb.innerHTML = '<span style="color:#dc2626;">✘ Passwords do not match</span>';
+            }
+        }
+
         function togglePassword(inputId, iconId) {
             const passwordInput = document.getElementById(inputId);
             const eyeIcon = document.getElementById(iconId);

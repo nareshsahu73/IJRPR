@@ -21,13 +21,13 @@
             
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Paper ID</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Title</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Author</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Position</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Submitted</th>
-                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style="width:80px">Paper ID</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style="width:200px">Title</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style="width:160px">Author</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style="width:110px">Position</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style="width:120px">Status</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style="width:130px">Submitted</th>
+                    <th class="px-5 py-3 text-left text-xs font-semibold text-gray-600 uppercase" style="width:120px">Submitted Paper</th>
                 </tr>
             </thead>
 
@@ -40,12 +40,16 @@
                         {{ $paper->id }}
                     </td>
 
-                    <td class="px-5 py-4">
-                        {{ e(Str::limit($paper->Title ?? 'N/A', 35)) }}
+                    <td class="px-5 py-4" style="max-width:200px">
+                        <div class="truncate" title="{{ $paper->Title ?? 'N/A' }}">
+                            {{ e(Str::limit($paper->Title ?? 'N/A', 35)) }}
+                        </div>
                     </td>
 
-                    <td class="px-5 py-4">
-                        {{ e($paper->author_name ?? 'N/A') }}
+                    <td class="px-5 py-4" style="max-width:160px">
+                        <div class="truncate" title="{{ $paper->author_name ?? 'N/A' }}">
+                            {{ e(Str::limit($paper->author_name ?? 'N/A', 25)) }}
+                        </div>
                     </td>
 
                     <td class="px-5 py-4">
@@ -55,46 +59,42 @@
                     </td>
 
                     <td class="px-5 py-4">
-
-                        @if($paper->paper_status)
-
-                            <span class="px-2 py-1 text-xs rounded-full
-
-                                {{ $paper->paper_status == 'Paper Accepted' ? 'bg-green-100 text-green-700' : '' }}
-
-                                {{ $paper->paper_status == 'Paper Rejected' ? 'bg-red-100 text-red-700' : '' }}
-
-                                {{ $paper->paper_status == 'Under Review' ? 'bg-yellow-100 text-yellow-700' : '' }}
-                            ">
-                                {{ e($paper->paper_status) }}
-                            </span>
-
+                        @php
+                            $status = $paper->paper_status;
+                            $badge = match($status) {
+                                'PaperAccepted', 'Paper Accepted'           => ['bg-green-100 text-green-700',  'Paper Accepted'],
+                                'PaperRejected', 'Paper Rejected'           => ['bg-red-100 text-red-700',      'Paper Rejected'],
+                                'PaperUnderReview', 'Under Review'          => ['bg-yellow-100 text-yellow-700','Under Review'],
+                                'PaperPublished', 'Paper Published'         => ['bg-blue-100 text-blue-700',    'Paper Published'],
+                                'PaperPublishedWithDOI'                     => ['bg-indigo-100 text-indigo-700','Paper Published with DOI'],
+                                'PaymentReceived'                           => ['bg-purple-100 text-purple-700','Payment Received'],
+                                'CommentsToUser'                            => ['bg-orange-100 text-orange-700','Comments to User'],
+                                'Paper Withdraw'                            => ['bg-gray-100 text-gray-600',    'Paper Withdraw'],
+                                default                                     => ['bg-gray-100 text-gray-600',    $status ?? 'Pending'],
+                            };
+                        @endphp
+                        @if($status === 'PaperPublishedWithDOI')
+                        <span class="px-2 py-1 text-xs rounded-full bg-indigo-100 text-indigo-700">Paper Published with DOI</span>
                         @else
-
-                            <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
-                                Pending
-                            </span>
-
+                        <span class="px-2 py-1 text-xs rounded-full {{ $badge[0] }}">
+                            {{ $badge[1] }}
+                        </span>
                         @endif
-
                     </td>
 
                     <td class="px-5 py-4 text-gray-600">
                         {{ \Carbon\Carbon::parse($paper->created_at)->format('Y-m-d H:i') }}
                     </td>
 
-                    <td class="px-5 py-4 space-x-3">
-                       <!-- <a href="{{ route('papers.show', $paper) }}" class="text-blue-500 hover:underline mr-3">View</a> -->
+                    <td class="px-5 py-4 whitespace-nowrap" style="width:120px">
                         <a href="{{ route('papers.download', $paper) }}"
-                           class="text-green-600 hover:text-green-800 font-medium">
+                           class="text-green-600 hover:text-green-800 font-medium mr-3">
                             Download
                         </a>
-
                         <a href="{{ route('papers.status', $paper) }}"
                            class="text-purple-600 hover:text-purple-800 font-medium">
                             Status
                         </a>
-
                     </td>
 
                 </tr>

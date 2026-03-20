@@ -4,6 +4,7 @@ namespace App\Filament\Resources\PaperResource\Pages;
 
 use App\Filament\Resources\PaperResource;
 use App\Models\EmailTemplate;
+use App\Models\Paper;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
@@ -15,7 +16,28 @@ class EditPaper extends EditRecord
 
     protected function getHeaderActions(): array
     {
+        $prevPaper = Paper::where('id', '<', $this->record->id)->orderBy('id', 'desc')->first();
+        $nextPaper = Paper::where('id', '>', $this->record->id)->orderBy('id', 'asc')->first();
+
         return [
+            Actions\Action::make('prevPaper')
+                ->label('← Previous')
+                ->color('gray')
+                ->disabled(!$prevPaper)
+                ->url($prevPaper ? static::getResource()::getUrl('edit', ['record' => $prevPaper->id]) : '#'),
+
+            Actions\Action::make('nextPaper')
+                ->label('Next →')
+                ->color('gray')
+                ->disabled(!$nextPaper)
+                ->url($nextPaper ? static::getResource()::getUrl('edit', ['record' => $nextPaper->id]) : '#'),
+
+            Actions\Action::make('backToList')
+                ->label('Back to Papers')
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(static::getResource()::getUrl('index')),
+
             Actions\Action::make('downloadPaper')
                 ->label('Download Paper')
                 ->icon('heroicon-o-arrow-down-tray')
@@ -32,7 +54,7 @@ class EditPaper extends EditRecord
                 ->label('Download Formatted Doc')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('info')
-                ->visible(fn () => auth()->user()->is_admin && $this->record->formatted_doc)
+                ->visible(fn () => (auth()->user()->is_admin || auth()->user()->is_staff) && $this->record->formatted_doc)
                 ->action(function () {
                     return response()->download(
                         storage_path('app/private/' . $this->record->formatted_doc),
@@ -44,7 +66,7 @@ class EditPaper extends EditRecord
                 ->label('Download Plagiarism Report')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('warning')
-                ->visible(fn () => auth()->user()->is_admin && $this->record->plagiarism_report)
+                ->visible(fn () => (auth()->user()->is_admin || auth()->user()->is_staff) && $this->record->plagiarism_report)
                 ->action(function () {
                     return response()->download(
                         storage_path('app/private/' . $this->record->plagiarism_report),
@@ -52,20 +74,75 @@ class EditPaper extends EditRecord
                     );
                 }),
             
-            Actions\DeleteAction::make(),
+            Actions\Action::make('deleteWithPassword')
+                ->label('Delete')
+                ->icon('heroicon-o-trash')
+                ->color('danger')
+                ->hidden(fn () => !auth()->user()->is_admin)
+                ->form([
+                    \Filament\Forms\Components\TextInput::make('delete_password')
+                        ->label('Delete Password')
+                        ->password()
+                        ->required(),
+                ])
+                ->modalHeading('Delete Paper')
+                ->modalDescription('This action cannot be undone. Enter the password to proceed.')
+                ->modalSubmitActionLabel('Delete Paper')
+                ->action(function (array $data) {
+                    $attempts = session()->get('delete_attempts', 0);
+
+                    if ($attempts >= 10) {
+                        \Filament\Notifications\Notification::make()
+                            ->title('Too many attempts. Access locked for this session.')
+                            ->danger()->send();
+                        return;
+                    }
+
+                    if ($data['delete_password'] !== env('DELETE_PASSWORD')) {
+                        session()->put('delete_attempts', $attempts + 1);
+                        $remaining = 10 - ($attempts + 1);
+                        \Filament\Notifications\Notification::make()
+                            ->title('Incorrect password. ' . $remaining . ' attempts remaining.')
+                            ->danger()->send();
+                        return;
+                    }
+
+                    session()->forget('delete_attempts');
+                    $this->record->delete();
+
+                    \Filament\Notifications\Notification::make()
+                        ->title('Paper deleted successfully.')
+                        ->success()->send();
+
+                    $this->redirect(static::getResource()::getUrl('index'));
+                }),
         ];
     }
 
     protected function getFormActions(): array
     {
+        $prevPaper = Paper::where('id', '<', $this->record->id)->orderBy('id', 'desc')->first();
+        $nextPaper = Paper::where('id', '>', $this->record->id)->orderBy('id', 'asc')->first();
+
         return [
             $this->getSaveFormAction(),
             $this->getCancelFormAction(),
+            Actions\Action::make('prevPaperBottom')
+                ->label('← Previous')
+                ->color('gray')
+                ->disabled(!$prevPaper)
+                ->url($prevPaper ? static::getResource()::getUrl('edit', ['record' => $prevPaper->id]) : '#'),
+
+            Actions\Action::make('nextPaperBottom')
+                ->label('Next →')
+                ->color('gray')
+                ->disabled(!$nextPaper)
+                ->url($nextPaper ? static::getResource()::getUrl('edit', ['record' => $nextPaper->id]) : '#'),
             Actions\Action::make('sendEmail')
                 ->label('Send Email')
                 ->icon('heroicon-o-envelope')
                 ->color('success')
-                ->visible(fn () => auth()->user()->is_admin)
+                ->visible(fn () => auth()->user()->is_admin || auth()->user()->is_staff)
                 ->requiresConfirmation()
                 ->modalHeading('Send Email to Author')
                 ->modalDescription('Are you sure you want to send the selected email template to the author?')

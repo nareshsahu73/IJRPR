@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PaperResource\Pages;
 use App\Models\Paper;
 use BackedEnum;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas\Schema;
@@ -35,9 +36,10 @@ class PaperResource extends Resource
                     ->label('Volume Issue')
                     ->options(function () {
                         return \App\Models\VolIssue::where('deleted', 0)
-                            ->orderBy('vol', 'asc')
-                            ->orderBy('issues', 'asc')
+                            ->orderBy('id', 'desc')
+                            ->limit(10)
                             ->get()
+                            ->sortBy('vol')->sortBy('issues')
                             ->mapWithKeys(function ($item) {
                                 return [$item->id => "Volume {$item->vol} Issue {$item->issues}"];
                             })
@@ -54,7 +56,7 @@ class PaperResource extends Resource
                             }
                         }
                     })
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\Hidden::make('Volume'),
                 Forms\Components\Hidden::make('Issue'),
@@ -104,6 +106,7 @@ class PaperResource extends Resource
 
                 Forms\Components\TextInput::make('Keywords')
                     ->label('Country *')
+                    ->required()
                     ->maxLength(255),
 
                 Forms\Components\Select::make('priority_status')
@@ -115,7 +118,7 @@ class PaperResource extends Resource
                         'Low Priority Abroad' => 'Low Priority Abroad',
                     ])
                     ->placeholder('Select an option')
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\FileUpload::make('file_name')
                     ->label('Attach Paper *')
@@ -128,9 +131,10 @@ class PaperResource extends Resource
                     ->disk('public')
                     ->uploadingMessage('Uploading paper...')
                     ->helperText('DOCX and DOC files accepted (Max: 20MB)')
-                    ->deletable(),
+                    ->deletable()
+                    ->required(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord),
 
-                Forms\Components\Textarea::make('Abstract')
+                Forms\Components\Textarea::make('author_comment')
                     ->label('Author Comment (If any, Optional)')
                     ->rows(5)
                     ->columnSpanFull(),
@@ -139,12 +143,16 @@ class PaperResource extends Resource
                 Forms\Components\Select::make('paper_status')
                     ->label('Paper Status')
                     ->options([
-                        'Paper Accepted' => 'Paper Accepted',
-                        'Paper Rejected' => 'Paper Rejected',
-                        'Under Review' => 'Under Review',
-                        'Paper Published' =>  'Paper Published',
+                        'PaperUnderReview'       => 'Paper Under Review',
+                        'PaperAccepted'          => 'Paper Accepted',
+                        'PaperPublished'         => 'Paper Published',
+                        'PaperPublishedWithDOI'  => 'Paper Published with DOI',
+                        'PaperRejected'          => 'Paper Rejected',
+                        'PaymentReceived'        => 'Payment Received',
+                        'CommentsToUser'         => 'Comments to User',
+                        'Paper Withdraw'         => 'Paper Withdraw',
                     ])
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\Select::make('final_manuscript')
                     ->label('Final manuscript')
@@ -152,7 +160,7 @@ class PaperResource extends Resource
                         'Received' => 'Received',
                         'Not Received' => 'Not Received',
                     ])
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\Select::make('copy_right_received')
                     ->label('Copy Right Received')
@@ -160,12 +168,12 @@ class PaperResource extends Resource
                         'Yes' => 'Yes',
                         'No' => 'No',
                     ])
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\TextInput::make('filled_copy_right')
                     ->label('Filled Copy Right')
                     ->maxLength(255)
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\Select::make('status_of_payment')
                     ->label('Status of Payment')
@@ -174,34 +182,39 @@ class PaperResource extends Resource
                         'Unpaid' => 'Unpaid',
                         'Waived' => 'Waived',
                     ])
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\DatePicker::make('publication_date')
                     ->label('Date')
                     ->displayFormat('Y-m-d')
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->afterStateHydrated(function ($component, $state, $record) {
+                        if (!$state && $record && $record->created_at) {
+                            $component->state(\Carbon\Carbon::parse($record->created_at)->format('Y-m-d'));
+                        }
+                    })
+                    ->visible(fn () => auth()->check() && (auth()->user()->is_admin || auth()->user()->is_staff)),
 
                 Forms\Components\TextInput::make('updated_at')
                     ->label('Last modified')
                      ->disabled()
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\TextInput::make('ip_address')
                     ->label('IP Address')
                     ->disabled()
                     ->helperText('Automatically captured when paper is submitted')
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                
                 Forms\Components\TextInput::make('Reference')
                     ->label('File link')
                     ->maxLength(255)
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\TextInput::make('certificate_link')
                     ->label('Certificate Link')
                     ->maxLength(255)
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\FileUpload::make('formatted_doc')
                     ->label('Formatted Doc file')
@@ -209,13 +222,13 @@ class PaperResource extends Resource
                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                         'application/msword'
                     ])
-                    ->maxSize(5120)
+                    ->maxSize(20480)
                     ->disk('private')
                     ->directory('secure_uploads/formatted_docs')
                     ->uploadingMessage('Uploading and scanning document...')
-                    ->helperText('DOCX and DOC files accepted (Max: 5MB)')
+                    ->helperText('DOCX and DOC files accepted (Max: 20MB)')
                     ->deletable()
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\FileUpload::make('plagiarism_report')
                     ->label('Plagiarism Report')
@@ -231,19 +244,20 @@ class PaperResource extends Resource
                     ->uploadingMessage('Uploading and scanning report...')
                     ->helperText('HTML, DOC, and DOCX files accepted (Max: 5MB)')
                     ->deletable()
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
 
 
-                Forms\Components\TextInput::make('invoice_no')
-                    ->label('Invoice No')
+                Forms\Components\TextInput::make('DOI')
+                    ->label('DOI')
                     ->maxLength(100)
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\Select::make('plagiarism_checked_by')
                     ->label('Plagiarism Checked by User')
                     ->options(function () {
                         return \App\Models\User::where('is_admin', 1)
+                            ->orWhere('is_staff', 1)
                             ->pluck('name', 'id')
                             ->toArray();
                     })
@@ -263,7 +277,7 @@ class PaperResource extends Resource
                         }
                         return 'Select the admin user who checked plagiarism';
                     })
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\Select::make('cer_status')
                     ->label('Reviewer Checked')
@@ -271,7 +285,8 @@ class PaperResource extends Resource
                         1 => 'Yes',
                         0 => 'No',
                     ])
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->default(0)
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\Select::make('certificate_only')
                     ->label('Plagiarism Checked')
@@ -279,19 +294,19 @@ class PaperResource extends Resource
                         1 => 'Yes',
                         0 => 'No',
                     ])
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
+                    ->default(0)
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                  Forms\Components\Textarea::make('plagiarism_percentage')
                     ->label('Plagiarism percentage and comment')
                     ->rows(3)
                     ->columnSpanFull()
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin),
-
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\Textarea::make('more_data')
                     ->label('Reviewer Comments')
                     ->rows(3)
-                    ->visible(fn () => auth()->check() && auth()->user()->is_admin)
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff))
                     ->columnSpanFull(),
 
                 // Email Template Section (Admin Only - shown after save button)
@@ -305,7 +320,7 @@ class PaperResource extends Resource
                     ->searchable()
                     ->visible(fn ($livewire) => 
                         auth()->check() && 
-                        auth()->user()->is_admin && 
+                        ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff) && 
                         $livewire instanceof \Filament\Resources\Pages\EditRecord
                     )
                     ->columnSpanFull()
@@ -317,32 +332,41 @@ class PaperResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordUrl(null)
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable()
-                    ->searchable(),
+                    ->copyable()
+                    ->copyMessage('Paper ID copied'),
                 Tables\Columns\TextColumn::make('Title')
                     ->label('Paper Title')
-                    ->searchable()
                     ->limit(40)
+                    ->tooltip(fn ($record) => $record->Title)
                     ->wrap(),
                 Tables\Columns\TextColumn::make('author_name')
                     ->label('Corresponding Author Name')
-                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Author Name copied')
                     ->limit(30),
                 Tables\Columns\TextColumn::make('cer_author_name')
                     ->label('Corresponding Author Email')
-                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Email copied')
                     ->limit(30),
                 Tables\Columns\TextColumn::make('paper_status')
                     ->label('Paper Status')
                     ->badge()
                     ->color(fn (string $state = null): string => match ($state) {
-                        'Paper Accepted' => 'success',
-                        'Paper Rejected' => 'danger',
-                        'Under Review' => 'warning',
-                        default => 'gray',
+                        'PaperAccepted'          => 'success',
+                        'PaperRejected'          => 'danger',
+                        'PaperUnderReview'       => 'warning',
+                        'PaperPublished'         => 'info',
+                        'PaperPublishedWithDOI'  => 'info',
+                        'PaymentReceived'        => 'primary',
+                        'CommentsToUser'         => 'warning',
+                        'Paper Withdraw'         => 'gray',
+                        default                  => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('final_manuscript')
                     ->label('Final manuscript')
@@ -422,6 +446,17 @@ class PaperResource extends Resource
                     ->label('Copyright')
                     ->badge()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('priority_status')
+                    ->label('Priority Status')
+                    ->badge()
+                    ->color(fn (string $state = null): string => match ($state) {
+                        'High priority UG' => 'danger',
+                        'Medium Priority PG' => 'warning',
+                        'Medium Priority Academic' => 'info',
+                        'Low Priority Abroad' => 'gray',
+                        default => 'gray',
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('status_of_payment')
                     ->label('Payment')
                     ->badge()
@@ -460,51 +495,35 @@ class PaperResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('Volume')
-                    ->label('Volume')
-                    ->options(function () {
-                        return Paper::query()
-                            ->whereNotNull('Volume')
-                            ->distinct()
-                            ->pluck('Volume', 'Volume')
-                            ->sort()
-                            ->toArray();
-                    }),
-                Tables\Filters\SelectFilter::make('Issue')
-                    ->label('Issue')
-                    ->options(function () {
-                        return Paper::query()
-                            ->whereNotNull('Issue')
-                            ->distinct()
-                            ->pluck('Issue', 'Issue')
-                            ->sort()
-                            ->toArray();
-                    }),
                 Tables\Filters\SelectFilter::make('paper_status')
                     ->label('Paper Status')
                     ->options([
-                        'Paper Accepted' => 'Paper Accepted',
-                        'Paper Rejected' => 'Paper Rejected',
-                        'Under Review' => 'Under Review',
-                        'Paper Published' =>  'Paper Published',
+                        'PaperUnderReview'      => 'Paper Under Review',
+                        'PaperAccepted'         => 'Paper Accepted',
+                        'PaperPublished'        => 'Paper Published',
+                        'PaperPublishedWithDOI' => 'Paper Published with DOI',
+                        'PaperRejected'         => 'Paper Rejected',
+                        'PaymentReceived'       => 'Payment Received',
+                        'CommentsToUser'        => 'Comments to User',
+                        'Paper Withdraw'        => 'Paper Withdraw',
                     ]),
-                Tables\Filters\SelectFilter::make('position')
-                    ->label('Position')
+                Tables\Filters\SelectFilter::make('final_manuscript')
+                    ->label('Final Manuscript')
                     ->options([
-                        'UG Student' => 'UG Student',
-                        'PG Student' => 'PG Student',
-                        'PhD Student' => 'PhD Student',
-                        'Academic Person' => 'Academic Person',
-                        'Industry Person' => 'Industry Person',
-                        'Research Scholar' => 'Research Scholar',
-                        'Other' => 'Other',
+                        'Received' => 'Received',
+                        'Not Received' => 'Not Received',
                     ]),
-                Tables\Filters\SelectFilter::make('status_of_payment')
-                    ->label('Payment Status')
+                Tables\Filters\SelectFilter::make('cer_status')
+                    ->label('Reviewer Checked')
                     ->options([
-                        'Paid' => 'Paid',
-                        'Unpaid' => 'Unpaid',
-                        'Waived' => 'Waived',
+                        1 => 'Yes',
+                        0 => 'No',
+                    ]),
+                Tables\Filters\SelectFilter::make('certificate_only')
+                    ->label('Plagiarism Checked')
+                    ->options([
+                        1 => 'Yes',
+                        0 => 'No',
                     ]),
                 Tables\Filters\SelectFilter::make('priority_status')
                     ->label('Priority Status')
@@ -517,12 +536,92 @@ class PaperResource extends Resource
             ])
             ->actions([
                 Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                Actions\Action::make('deleteWithPassword')
+                    ->label('Delete')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->authorize(fn () => auth()->user()->is_admin)
+                    ->extraAttributes(fn () => auth()->user()->is_admin ? [] : ['style' => 'display:none!important'])
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('delete_password')
+                            ->label('Delete Password')
+                            ->password()
+                            ->required(),
+                    ])
+                    ->modalHeading('Delete Paper')
+                    ->modalDescription('This action cannot be undone. Enter the password to proceed.')
+                    ->modalSubmitActionLabel('Delete Paper')
+                    ->action(function ($record, array $data) {
+                        $attempts = session()->get('delete_attempts', 0);
+
+                        if ($attempts >= 10) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Too many attempts. Access locked for this session.')
+                                ->danger()->send();
+                            return;
+                        }
+
+                        if ($data['delete_password'] !== env('DELETE_PASSWORD')) {
+                            session()->put('delete_attempts', $attempts + 1);
+                            $remaining = 10 - ($attempts + 1);
+                            \Filament\Notifications\Notification::make()
+                                ->title('Incorrect password. ' . $remaining . ' attempts remaining.')
+                                ->danger()->send();
+                            return;
+                        }
+
+                        session()->forget('delete_attempts');
+                        $record->delete();
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Paper deleted successfully.')
+                            ->success()->send();
+                    }),
             ])
             ->actionsColumnLabel('Actions')
             ->bulkActions([
                 Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
+                    Actions\BulkAction::make('deleteWithPassword')
+                        ->label('Delete Selected')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
+                        ->hidden(fn () => !auth()->user()->is_admin)
+                        ->form([
+                            \Filament\Forms\Components\TextInput::make('delete_password')
+                                ->label('Delete Password')
+                                ->password()
+                                ->required(),
+                        ])
+                        ->modalHeading('Delete Selected Papers')
+                        ->modalDescription('This action cannot be undone. Enter the password to proceed.')
+                        ->modalSubmitActionLabel('Delete Selected')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
+                            $attempts = session()->get('delete_attempts', 0);
+
+                            if ($attempts >= 10) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Too many attempts. Access locked for this session.')
+                                    ->danger()->send();
+                                return;
+                            }
+
+                            if ($data['delete_password'] !== env('DELETE_PASSWORD')) {
+                                session()->put('delete_attempts', $attempts + 1);
+                                $remaining = 10 - ($attempts + 1);
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Incorrect password. ' . $remaining . ' attempts remaining.')
+                                    ->danger()->send();
+                                return;
+                            }
+
+                            session()->forget('delete_attempts');
+                            $records->each->delete();
+
+                            \Filament\Notifications\Notification::make()
+                                ->title(count($records) . ' paper(s) deleted successfully.')
+                                ->success()->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

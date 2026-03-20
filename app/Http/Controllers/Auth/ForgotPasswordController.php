@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
 class ForgotPasswordController extends Controller
@@ -18,6 +19,19 @@ class ForgotPasswordController extends Controller
 
     public function sendResetLink(Request $request)
     {
+        // Rate limit: 5 attempts per IP per hour
+        $key = 'forgot-password:' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            $minutes = ceil($seconds / 60);
+            return back()->withErrors([
+                'email' => "Too many password reset attempts. Please try again in {$minutes} minute(s).",
+            ]);
+        }
+
+        RateLimiter::hit($key, 3600); // 1 hour decay
+
         $request->validate([
             'email' => 'required|email|exists:users,email',
         ], [
@@ -42,8 +56,8 @@ class ForgotPasswordController extends Controller
         // Send email
         try {
             Mail::send([], [], function ($message) use ($user, $token) {
-                $resetLink = url("/reset-password/{$token}");
-                
+                $resetLink = route('password.reset', ['token' => $token]);
+
                 $htmlContent = "
                     <h2>Password Reset Request</h2>
                     <p>Hello {$user->name},</p>
@@ -57,7 +71,7 @@ class ForgotPasswordController extends Controller
                     <br>
                     <p>Regards,<br>IJRPR Team</p>
                 ";
-                
+
                 $message->to($user->email)
                     ->subject('Reset Password - IJRPR')
                     ->html($htmlContent);
@@ -83,17 +97,17 @@ class ForgotPasswordController extends Controller
                 'required',
                 'confirmed',
                 'min:12',
-                'regex:/[a-z]/',      // at least one lowercase
-                'regex:/[A-Z]/',      // at least one uppercase
-                'regex:/[0-9]/',      // at least one digit
-                'regex:/[@$!%*#?&]/', // at least one special character
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*#?&]/',
             ],
         ], [
             'password.min' => 'Password must be at least 12 characters.',
             'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*).',
         ]);
 
-        // Check if token exists and is valid (within 60 minutes)
+        // Check if token exists and is valid
         $resetRecord = DB::table('password_reset_tokens')
             ->where('email', $request->email)
             ->where('token', $request->token)
@@ -117,6 +131,6 @@ class ForgotPasswordController extends Controller
         // Delete token
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return redirect('/login')->with('status', 'Your password has been reset successfully!');
+        return redirect()->route('login')->with('status', 'Your password has been reset successfully!');
     }
 }

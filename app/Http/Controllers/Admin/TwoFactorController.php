@@ -17,6 +17,14 @@ class TwoFactorController extends Controller
             'password' => 'required',
         ]);
 
+        // Rate limit: 5 attempts per IP per 15 minutes
+        $key = 'admin-login:' . $request->ip();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($key);
+            return back()->withErrors(['email' => 'Too many login attempts. Please try again in ' . ceil($seconds / 60) . ' minute(s).']);
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($key, 900); // 15 min decay
+
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !password_verify($request->password, $user->password)) {
@@ -43,7 +51,7 @@ class TwoFactorController extends Controller
         // Send email
         try {
             Mail::send([], [], function ($message) use ($user, $code, $token) {
-                $loginLink = url("/admin/2fa/verify-token/{$token}");
+                $loginLink = url("/myweb/2fa/verify-token/{$token}");
                 
                 $htmlContent = "
                     <h2>Admin Login Verification</h2>
@@ -73,10 +81,10 @@ class TwoFactorController extends Controller
     public function showVerifyForm()
     {
         if (!session('2fa_email')) {
-            return redirect('/admin/login');
+            return redirect('/myweb/login');
         }
 
-        return view('admin.2fa-verify');
+        return view('myweb.2fa-verify');
     }
 
     public function verifyCode(Request $request)
@@ -85,9 +93,17 @@ class TwoFactorController extends Controller
             'code' => 'required|digits:6',
         ]);
 
+        // Rate limit OTP attempts: 5 per IP per 15 minutes
+        $key = 'admin-2fa:' . $request->ip();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($key);
+            return back()->withErrors(['code' => 'Too many attempts. Please try again in ' . ceil($seconds / 60) . ' minute(s).']);
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($key, 900);
+
         $email = session('2fa_email');
         if (!$email) {
-            return redirect('/admin/login')->withErrors(['code' => 'Session expired']);
+            return redirect('/myweb/login')->withErrors(['code' => 'Session expired']);
         }
 
         $user = User::where('email', $email)
@@ -111,7 +127,10 @@ class TwoFactorController extends Controller
         session()->forget('2fa_email');
         session()->regenerate();
 
-        return redirect('/admin');
+        // Clear rate limit on success
+        \Illuminate\Support\Facades\RateLimiter::clear('admin-2fa:' . $request->ip());
+
+        return redirect('/myweb');
     }
 
     public function verifyToken($token)
@@ -124,7 +143,7 @@ class TwoFactorController extends Controller
             ->first();
 
         if (!$user) {
-            return redirect('/admin/login')->withErrors(['email' => 'Invalid or expired login link']);
+            return redirect('/myweb/login')->withErrors(['email' => 'Invalid or expired login link']);
         }
 
         // Clear 2FA data
@@ -138,6 +157,6 @@ class TwoFactorController extends Controller
         auth()->login($user);
         session()->regenerate();
 
-        return redirect('/admin');
+        return redirect('/myweb');
     }
 }

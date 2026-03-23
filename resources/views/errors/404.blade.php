@@ -30,7 +30,7 @@
             <div class="space-y-3">
                 @auth
                     @if(auth()->user()->is_admin)
-                        <a href="{{ url('/admin') }}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+                        <a href="{{ url('/myweb') }}" class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
                             Go to Admin Panel
                         </a>
                     @else

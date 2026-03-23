@@ -56,6 +56,7 @@ class UserResource extends Resource
                     ->label('Email'),
                 Forms\Components\TextInput::make('password')
                     ->password()
+                    ->revealable()
                     ->required(fn ($record) => $record === null)
                     ->dehydrated(fn ($state) => filled($state))
                     ->maxLength(255)
@@ -63,6 +64,7 @@ class UserResource extends Resource
                     ->helperText('Leave blank to keep current password (when editing)'),
                 Forms\Components\TextInput::make('password_confirmation')
                     ->password()
+                    ->revealable()
                     ->required(fn ($record) => $record === null)
                     ->dehydrated(false)
                     ->maxLength(255)
@@ -82,6 +84,12 @@ class UserResource extends Resource
                     ->offColor('danger')
                     ->disabled(fn ($get) => (bool) $get('is_staff'))
                     ->dehydrated(true),
+                Forms\Components\Toggle::make('share_credentials')
+                    ->label('Share credentials to user by email')
+                    ->helperText('If checked, email and password will be included in the welcome email')
+                    ->onColor('warning')
+                    ->offColor('gray')
+                    ->default(false),
             ]);
     }
 

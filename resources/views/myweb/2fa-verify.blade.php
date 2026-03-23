@@ -108,7 +108,7 @@
                 </div>
 
                 <div class="text-center">
-                    <a href="/admin/login" class="text-sm text-purple-600 hover:text-purple-700">
+                    <a href="{{ route('admin.login') }}" class="text-sm text-purple-600 hover:text-purple-700">
                         ← Back to login
                     </a>
                 </div>
@@ -118,7 +118,7 @@
                 <div class="info-box">
                     <p class="text-xs">
                         Didn't receive the code? Check your spam folder or
-                        <a href="/admin/login" class="font-semibold underline">try again</a>
+                        <a href="/myweb/login" class="font-semibold underline">try again</a>
                     </p>
                     <p class="text-xs mt-2">
                         Code expires in 10 minutes
@@ -129,26 +129,17 @@
     </div>
 
     <script>
-        // Auto-submit when 6 digits entered
+        // Only allow numbers on input
         document.getElementById('code').addEventListener('input', function(e) {
-            // Only allow numbers
-            e.target.value = e.target.value.replace(/[^0-9]/g, '');
-            
-            if (e.target.value.length === 6) {
-                e.target.form.submit();
-            }
+            e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 6);
         });
 
-        // Prevent paste of non-numeric characters
+        // Prevent paste of non-numeric characters but do NOT auto-submit
         document.getElementById('code').addEventListener('paste', function(e) {
             e.preventDefault();
             const pastedText = (e.clipboardData || window.clipboardData).getData('text');
             const numericOnly = pastedText.replace(/[^0-9]/g, '').substring(0, 6);
             e.target.value = numericOnly;
-            
-            if (numericOnly.length === 6) {
-                e.target.form.submit();
-            }
         });
     </script>
 </body>

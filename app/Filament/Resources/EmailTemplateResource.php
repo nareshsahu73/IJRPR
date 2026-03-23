@@ -62,14 +62,12 @@ class EmailTemplateResource extends Resource
                     
                 Forms\Components\TextInput::make('custom_from_name')
                     ->label('Custom From Name')
-                    ->maxLength(100)
-                    ->visible(fn ($get) => $get('email_from') === 'custom'),
+                    ->maxLength(100),
                     
                 Forms\Components\TextInput::make('custom_from_email')
                     ->label('Custom From Email')
                     ->email()
-                    ->maxLength(100)
-                    ->visible(fn ($get) => $get('email_from') === 'custom'),
+                    ->maxLength(100),
                     
                 Forms\Components\Select::make('email_reply_to')
                     ->label('Reply To')
@@ -107,13 +105,13 @@ class EmailTemplateResource extends Resource
                         'h2',
                         'h3',
                     ])
-                    ->helperText('Available placeholders: {paper_title}, {author_name}, {email}, {position}, {country}, {affiliation}, {issue}, {doi}, {publication_date}, {paper_id}, {paper_status}, {created_at} | Old format: {$ANSWER_field1} (Title), {$ANSWER_field2} (Author), {$ANSWER_core__submission_id} (Paper ID), {$ANSWER_core__submission_date} (Submission Date)'),
+                    ->helperText('Available placeholders: {paper_title}, {author_name}, {email}, {position}, {country}, {affiliation}, {volume}, {issue}, {volume_issue}, {doi}, {file_link}, {certificate_link}, {fees_amount}, {reviewer_comments}, {publication_date}, {paper_id}, {paper_status}, {created_at} | Old format: {$ANSWER_field1} (Title), {$ANSWER_field2} (Author), {$ANSWER_field9} (Volume Issue), {$ANSWER_field20} (DOI), {$ANSWER_field21} (File link), {$ANSWER_field22} (Reviewer Comments), {$ANSWER_field24} (Certificate Link), {$ANSWER_core__submission_id} (Paper ID), {$ANSWER_core__submission_date} (Submission Date)'),
                     
                 Forms\Components\Textarea::make('text_template')
                     ->label('Text Template')
                     ->rows(10)
                     ->columnSpanFull()
-                    ->helperText('Available placeholders: {paper_title}, {author_name}, {email}, {position}, {country}, {affiliation}, {issue}, {doi}, {publication_date}, {paper_id}, {paper_status}, {created_at} | Old format: {$ANSWER_field1} (Title), {$ANSWER_field2} (Author), {$ANSWER_core__submission_id} (Paper ID), {$ANSWER_core__submission_date} (Submission Date)'),
+                    ->helperText('Available placeholders: {paper_title}, {author_name}, {email}, {position}, {country}, {affiliation}, {volume}, {issue}, {volume_issue}, {doi}, {file_link}, {certificate_link}, {fees_amount}, {reviewer_comments}, {publication_date}, {paper_id}, {paper_status}, {created_at} | Old format: {$ANSWER_field1} (Title), {$ANSWER_field2} (Author), {$ANSWER_field9} (Volume Issue), {$ANSWER_field20} (DOI), {$ANSWER_field21} (File link), {$ANSWER_field22} (Reviewer Comments), {$ANSWER_field24} (Certificate Link), {$ANSWER_core__submission_id} (Paper ID), {$ANSWER_core__submission_date} (Submission Date)'),
             ]);
     }
 

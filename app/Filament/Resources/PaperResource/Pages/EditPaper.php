@@ -180,6 +180,14 @@ class EditPaper extends EditRecord
                                     $template->custom_from_email ?: config('mail.from.address'),
                                     $template->custom_from_name ?: config('mail.from.name')
                                 );
+
+                            // Attach plagiarism report if it exists for this paper
+                            if ($paper->plagiarism_report) {
+                                $filePath = storage_path('app/private/' . $paper->plagiarism_report);
+                                if (file_exists($filePath)) {
+                                    $message->attach($filePath, ['as' => basename($paper->plagiarism_report)]);
+                                }
+                            }
                         });
 
                         Notification::make()
@@ -200,7 +208,6 @@ class EditPaper extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Agar vol_issue_id selected hai to Volume aur Issue set karo
         if (!empty($data['vol_issue_id'])) {
             $volIssue = \App\Models\VolIssue::find($data['vol_issue_id']);
             if ($volIssue) {
@@ -228,31 +235,42 @@ class EditPaper extends EditRecord
     {
         // New format placeholders
         $replacements = [
-            '{paper_title}' => $paper->Title ?? '',
-            '{author_name}' => $paper->author_name ?? '',
-            '{author_email}' => $paper->cer_author_name ?? '',
-            '{contact_no}' => $paper->contact_no ?? '',
-            '{affiliation}' => $paper->affiliation ?? '',
-            '{position}' => $paper->position ?? '',
-            '{country}' => $paper->Keywords ?? '',
-            '{volume}' => $paper->Volume ?? '',
-            '{issue}' => $paper->Issue ?? '',
-            '{doi}' => $paper->DOI ?? '',
+            '{paper_title}'      => $paper->Title ?? '',
+            '{author_name}'      => $paper->author_name ?? '',
+            '{email}'            => $paper->cer_author_name ?? '',
+            '{author_email}'     => $paper->cer_author_name ?? '',
+            '{contact_no}'       => $paper->contact_no ?? '',
+            '{affiliation}'      => $paper->affiliation ?? '',
+            '{position}'         => $paper->position ?? '',
+            '{country}'          => $paper->Keywords ?? '',
+            '{volume}'           => $paper->Volume ?? '',
+            '{issue}'            => $paper->Issue ?? '',
+            '{doi}'              => $paper->DOI ?? '',
             '{publication_date}' => $paper->publication_date ?? '',
-            '{paper_id}' => $paper->id ?? '',
-            '{submission_date}' => $paper->created_at ?? '',
-            '{paper_status}' => $paper->paper_status ?? '',
+            '{paper_id}'         => $paper->id ?? '',
+            '{submission_date}'  => $paper->created_at ?? '',
+            '{created_at}'       => $paper->created_at ?? '',
+            '{paper_status}'     => $paper->paper_status ?? '',
+            '{file_link}'        => $paper->Reference ?? '',
+            '{certificate_link}' => $paper->certificate_link ?? '',
+            '{fees_amount}'      => $paper->filled_copy_right ?? '',
+            '{reviewer_comments}'=> $paper->more_data ?? '',
+            '{volume_issue}'     => ($paper->Volume && $paper->Issue) ? "Volume {$paper->Volume} Issue {$paper->Issue}" : '',
         ];
 
         // Old format placeholders (for backward compatibility)
         $oldFormatReplacements = [
-            '{$ANSWER_field1}' => $paper->Title ?? '',
-            '{$ANSWER_field2}' => $paper->author_name ?? '',
+            '{$ANSWER_field1}'              => $paper->Title ?? '',
+            '{$ANSWER_field2}'              => $paper->author_name ?? '',
+            '{$ANSWER_field9}'              => ($paper->Volume && $paper->Issue) ? "Volume {$paper->Volume} Issue {$paper->Issue}" : '',
+            '{$ANSWER_field20}'             => $paper->DOI ?? '',
+            '{$ANSWER_field21}'             => $paper->Reference ?? '',
+            '{$ANSWER_field22}'             => $paper->more_data ?? '',
+            '{$ANSWER_field24}'             => $paper->certificate_link ?? '',
             '{$ANSWER_core__submission_id}' => $paper->id ?? '',
             '{$ANSWER_core__submission_date}' => $paper->created_at ?? '',
         ];
 
-        // Merge both formats
         $allReplacements = array_merge($replacements, $oldFormatReplacements);
 
         return str_replace(array_keys($allReplacements), array_values($allReplacements), $content);

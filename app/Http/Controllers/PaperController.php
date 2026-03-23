@@ -38,16 +38,37 @@ class PaperController extends Controller
             'position.in' => 'Invalid position selected.',
         ]);
 
-        // Manual DOCX validation
+        // Manual DOCX validation — also check for double extensions like malware.php.docx
         $file = $request->file('file');
+        $originalName = $file->getClientOriginalName();
         $extension = strtolower($file->getClientOriginalExtension());
-        
+
+        // Reject if filename has multiple extensions (e.g. file.php.docx)
+        $nameParts = explode('.', $originalName);
+        if (count($nameParts) > 2) {
+            return back()->withErrors(['file' => 'Invalid file name. Only simple .docx files are allowed.'])->withInput();
+        }
+
+        // Check MIME type matches docx
+        $mimeType = $file->getMimeType();
+        $allowedMimes = [
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/octet-stream',
+            'application/zip', // docx is a zip internally
+        ];
+
         if ($extension !== 'docx') {
             return back()->withErrors(['file' => 'Only DOCX files are allowed.'])->withInput();
         }
 
+        if (!in_array($mimeType, $allowedMimes)) {
+            return back()->withErrors(['file' => 'Invalid file type. Only DOCX files are allowed.'])->withInput();
+        }
+
         try {
-            $filePath = $request->file('file')->store('papers', 'public');
+            // Store with safe random name to prevent path traversal
+            $safeName = \Illuminate\Support\Str::random(40) . '.docx';
+            $filePath = $file->storeAs('papers', $safeName, 'public');
 
             // Sanitize all text inputs to prevent XSS
             $paper = auth()->user()->papers()->create([
@@ -61,6 +82,7 @@ class PaperController extends Controller
                 'Keywords' => htmlspecialchars($validated['Keywords'], ENT_QUOTES, 'UTF-8'),
                 'Abstract' => !empty($validated['Abstract']) ? htmlspecialchars($validated['Abstract'], ENT_QUOTES, 'UTF-8') : null,
                 'file_name' => $filePath,
+                'original_filename' => $originalName,
                 'paper_status' => 'PaperUnderReview',
                 'created_by' => auth()->id(),
                 'ip_address' => $request->ip(),
@@ -86,8 +108,9 @@ class PaperController extends Controller
         return view('papers.show', compact('paper'));
     }
 
-    public function download(Paper $paper)
+    public function download($id)
     {
+        $paper = Paper::findOrFail($id);
         $user = auth()->user();
     
         if (!$user->is_admin && $user->id !== (int) $paper->created_by) {
@@ -116,9 +139,10 @@ class PaperController extends Controller
         return redirect()->route('papers.index')->with('success', 'Paper deleted successfully!');
     }
 
-    public function checkStatus(Paper $paper)
+    public function checkStatus($id)
     {
-        // Check if user owns the paper
+        $paper = Paper::findOrFail($id);
+
         if (auth()->id() !== (int)$paper->created_by) {
             abort(403, 'Unauthorized access');
         }

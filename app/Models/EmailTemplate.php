@@ -20,7 +20,6 @@ class EmailTemplate extends Model
         'view_mapping_view_id',
         'limit_email_content_to_fields_in_view',
         'email_trigger_set',
-        'include_file_fields_as_email_attachments',
         'subject',
         'email_from',
         'email_from_account_id',
@@ -40,7 +39,6 @@ class EmailTemplate extends Model
         'email_status' => 'string',
         'view_mapping_type' => 'string',
         'email_trigger_set' => 'string',
-        'include_file_fields_as_email_attachments' => 'string',
         'email_from' => 'string',
         'email_reply_to' => 'string',
     ];

@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    @if($paper->paper_status == 'Paper Accepted')
+    @if($paper->paper_status == 'PaperAccepted')
         <!-- Paper Accepted Status -->
         <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded">
             <h2 class="text-xl font-bold text-green-800 mb-4">Paper Status: Paper Accepted</h2>
@@ -82,10 +82,10 @@
             </div>
         </div>
 
-    @elseif($paper->paper_status == 'Under Review')
+    @elseif($paper->paper_status == 'PaperUnderReview')
         <!-- Under Review Status -->
         <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded">
-            <h2 class="text-xl font-bold text-yellow-800 mb-4">Paper Status: Under Review</h2>
+            <h2 class="text-xl font-bold text-yellow-800 mb-4">Paper Status: Paper Under Review</h2>
             <div class="text-gray-700 space-y-4">
                 <p>Dear Author,</p>
                 
@@ -163,7 +163,7 @@
             </div>
         </div>
 
-    @elseif($paper->paper_status == 'Paper Rejected')
+    @elseif($paper->paper_status == 'PaperRejected')
         <!-- Paper Rejected Status -->
         <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded">
             <h2 class="text-xl font-bold text-red-800 mb-4">Paper Status: Paper Rejected</h2>
@@ -197,7 +197,7 @@
             </div>
         </div>
 
-    @elseif($paper->paper_status == 'Paper Published')
+    @elseif($paper->paper_status == 'PaperPublished')
         <!-- Paper Published Status -->
         <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
             <h2 class="text-xl font-bold text-blue-800 mb-4">Paper Status: Paper Published</h2>
@@ -263,26 +263,20 @@
         </div>
 
     @else
-        <!-- Default/Pending Status -->
-        <div class="bg-gray-50 border-l-4 border-gray-500 p-6 rounded">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Paper Status: Pending</h2>
+        <!-- Fallback: show Under Review for any unknown status -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded">
+            <h2 class="text-xl font-bold text-yellow-800 mb-4">Paper Status: Paper Under Review</h2>
             <div class="text-gray-700 space-y-4">
-                <p>Dear {{ $paper->author_name }},</p>
-                
+                <p>Dear Author,</p>
                 <p>Thank you for submitting your paper to <strong>International Journal of Research Publication and Reviews (IJRPR)</strong>.</p>
-                
                 <div class="bg-white p-4 rounded border">
                     <p><strong>Paper ID:</strong> IJRPR-{{ $paper->id }}</p>
                     <p><strong>Paper Title:</strong> {{ $paper->Title }}</p>
                 </div>
-                
-                <p>Your paper has been received and is awaiting initial review.</p>
-                
-                <p>We will update you soon regarding the status of your submission.</p>
-                
+                <p>Your paper is currently under review. Once the review process is completed, we will notify you through your registered email.</p>
                 <div class="mt-6">
                     <p>With Warm Regards</p>
-                    <p class="font-semibold">IJRPR Team</p>
+                    <p class="font-semibold">Editor-in-Chief</p>
                     <p>International Journal of Research Publication and Reviews</p>
                     <p><a href="http://www.ijrpr.com" target="_blank" class="text-blue-500 hover:underline">http://www.ijrpr.com</a></p>
                 </div>

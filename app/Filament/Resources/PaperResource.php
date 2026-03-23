@@ -130,9 +130,21 @@ class PaperResource extends Resource
                     ->directory('papers')
                     ->disk('public')
                     ->uploadingMessage('Uploading paper...')
-                    ->helperText('DOCX and DOC files accepted (Max: 20MB)')
+                    ->helperText('DOCX and DOC files accepted (Max: 20MB). Double extensions not allowed.')
                     ->deletable()
-                    ->required(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord),
+                    ->required(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord)
+                    ->saveUploadedFileUsing(function (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file, callable $set) {
+                        $originalName = $file->getClientOriginalName();
+                        if (substr_count(basename($originalName), '.') > 1) {
+                            $set('file_name', null);
+                            \Filament\Notifications\Notification::make()
+                                ->title('Invalid file "' . $originalName . '": double extensions are not allowed (e.g. file.php.docx).')
+                                ->danger()->send();
+                            return null;
+                        }
+                        $safeName = \Illuminate\Support\Str::random(40) . '.docx';
+                        return $file->storeAs('papers', $safeName, 'public');
+                    }),
 
                 Forms\Components\Textarea::make('author_comment')
                     ->label('Author Comment (If any, Optional)')
@@ -152,6 +164,7 @@ class PaperResource extends Resource
                         'CommentsToUser'         => 'Comments to User',
                         'Paper Withdraw'         => 'Paper Withdraw',
                     ])
+                    ->default('PaperUnderReview')
                     ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\Select::make('final_manuscript')
@@ -171,7 +184,7 @@ class PaperResource extends Resource
                     ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
                 Forms\Components\TextInput::make('filled_copy_right')
-                    ->label('Filled Copy Right')
+                    ->label('Fees Amount')
                     ->maxLength(255)
                     ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
@@ -184,12 +197,13 @@ class PaperResource extends Resource
                     ])
                     ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
 
-                Forms\Components\DatePicker::make('publication_date')
+                Forms\Components\DateTimePicker::make('publication_date')
                     ->label('Date')
-                    ->displayFormat('Y-m-d')
+                    ->displayFormat('Y-m-d H:i:s')
+                    ->seconds(true)
                     ->afterStateHydrated(function ($component, $state, $record) {
                         if (!$state && $record && $record->created_at) {
-                            $component->state(\Carbon\Carbon::parse($record->created_at)->format('Y-m-d'));
+                            $component->state(\Carbon\Carbon::parse($record->created_at)->format('Y-m-d H:i:s'));
                         }
                     })
                     ->visible(fn () => auth()->check() && (auth()->user()->is_admin || auth()->user()->is_staff)),
@@ -226,9 +240,22 @@ class PaperResource extends Resource
                     ->disk('private')
                     ->directory('secure_uploads/formatted_docs')
                     ->uploadingMessage('Uploading and scanning document...')
-                    ->helperText('DOCX and DOC files accepted (Max: 20MB)')
+                    ->helperText('DOCX and DOC files accepted (Max: 20MB). Double extensions not allowed.')
                     ->deletable()
-                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff))
+                    ->saveUploadedFileUsing(function (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file, callable $set) {
+                        $originalName = $file->getClientOriginalName();
+                        if (substr_count(basename($originalName), '.') > 1) {
+                            $set('formatted_doc', null);
+                            \Filament\Notifications\Notification::make()
+                                ->title('Invalid file "' . $originalName . '": double extensions are not allowed.')
+                                ->danger()->send();
+                            return null;
+                        }
+                        $ext = strtolower($file->getClientOriginalExtension());
+                        $safeName = \Illuminate\Support\Str::random(40) . '.' . $ext;
+                        return $file->storeAs('secure_uploads/formatted_docs', $safeName, 'private');
+                    }),
 
                 Forms\Components\FileUpload::make('plagiarism_report')
                     ->label('Plagiarism Report')
@@ -242,9 +269,22 @@ class PaperResource extends Resource
                     ->disk('private')
                     ->directory('secure_uploads/plagiarism_reports')
                     ->uploadingMessage('Uploading and scanning report...')
-                    ->helperText('HTML, DOC, and DOCX files accepted (Max: 5MB)')
+                    ->helperText('HTML, DOC, and DOCX files accepted (Max: 5MB). Double extensions not allowed.')
                     ->deletable()
-                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff)),
+                    ->visible(fn () => auth()->check() && ((auth()->user()->is_admin || auth()->user()->is_staff) || auth()->user()->is_staff || auth()->user()->is_staff))
+                    ->saveUploadedFileUsing(function (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file, callable $set) {
+                        $originalName = $file->getClientOriginalName();
+                        if (substr_count(basename($originalName), '.') > 1) {
+                            $set('plagiarism_report', null);
+                            \Filament\Notifications\Notification::make()
+                                ->title('Invalid file "' . $originalName . '": double extensions are not allowed.')
+                                ->danger()->send();
+                            return null;
+                        }
+                        $ext = strtolower($file->getClientOriginalExtension());
+                        $safeName = \Illuminate\Support\Str::random(40) . '.' . $ext;
+                        return $file->storeAs('secure_uploads/plagiarism_reports', $safeName, 'private');
+                    }),
 
 
 

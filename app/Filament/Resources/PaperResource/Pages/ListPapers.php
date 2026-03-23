@@ -21,7 +21,7 @@ class ListPapers extends ListRecords
 
     protected function applySearchToTableQuery(Builder $query): Builder
     {
-        $search = $this->tableSearch ?? '';
+        $search = trim($this->tableSearch ?? '');
 
         if ($search === '') {
             return $query;

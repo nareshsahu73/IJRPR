@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
+use App\Filament\Resources\UserResource\Pages\CreateUser;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Hash;
@@ -10,6 +11,9 @@ use Illuminate\Support\Facades\Hash;
 class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
+
+    protected ?string $plainPassword = null;
+    protected bool $shareCredentials = false;
 
     protected function getHeaderActions(): array
     {
@@ -123,22 +127,32 @@ class EditUser extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Hash password only if it's provided
+        // Capture before hashing/unsetting
+        $this->plainPassword    = filled($data['password'] ?? '') ? $data['password'] : null;
+        $this->shareCredentials = (bool) ($data['share_credentials'] ?? false);
+
         if (isset($data['password']) && filled($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
-            // Remove password field if empty (keep existing password)
             unset($data['password']);
         }
-        
-        // Remove password_confirmation as it's not needed in database
-        unset($data['password_confirmation']);
 
-        // Staff users cannot be admin
+        unset($data['password_confirmation'], $data['share_credentials']);
+
         if (!empty($data['is_staff'])) {
             $data['is_admin'] = false;
         }
-        
+
         return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        CreateUser::sendUserEmail(
+            $this->record,
+            $this->plainPassword,
+            $this->shareCredentials,
+            isNew: false
+        );
     }
 }

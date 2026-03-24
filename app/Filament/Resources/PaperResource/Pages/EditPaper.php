@@ -181,8 +181,8 @@ class EditPaper extends EditRecord
                                     $template->custom_from_name ?: config('mail.from.name')
                                 );
 
-                            // Attach plagiarism report if it exists for this paper
-                            if ($paper->plagiarism_report) {
+                            // Attach plagiarism report only when paper status is PaperRejected
+                            if ($paper->paper_status === 'PaperRejected' && $paper->plagiarism_report) {
                                 $filePath = storage_path('app/private/' . $paper->plagiarism_report);
                                 if (file_exists($filePath)) {
                                     $message->attach($filePath, ['as' => basename($paper->plagiarism_report)]);

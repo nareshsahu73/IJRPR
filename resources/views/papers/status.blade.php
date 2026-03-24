@@ -63,20 +63,29 @@
                     <h3 class="font-bold text-lg mb-2">Step 1: Submit Copyright Form</h3>
                     <p class="mb-2">Download the copyright form from the website and send it to us after filling and signing.</p>
                     <p class="mb-2"><strong>Download here:</strong> <a href="https://www.ijrpr.com/download/COPY-RIGHT-FORM.pdf" target="_blank" class="text-blue-500 hover:underline">https://www.ijrpr.com/download/COPY-RIGHT-FORM.pdf</a></p>
-                    <p class="mb-2"><strong>Note:</strong> Take a print of the form, fill it, scan it and send it to <a href="mailto:contactusijrpr@gmail.com" class="text-blue-500">contactusijrpr@gmail.com</a></p>
+                    <p class="mb-2"><strong>Note:</strong> Take a print of the form, fill it, scan it and send it to <a href="mailto:contactusijrpr@gmail.com" class="text-blue-500">contactusijrpr@gmail.com</a> <span class="bg-yellow-200 px-1">Do not forget to mention your paper ID in subject of mail.</span></p>
                     <p>You can also submit the online copyright form here: <a href="https://forms.gle/s95xHMivEBYgmmSy8" target="_blank" class="text-blue-500 hover:underline">https://forms.gle/s95xHMivEBYgmmSy8</a></p>
                 </div>
                 <div class="bg-white p-4 rounded border">
-                    <h3 class="font-bold text-lg mb-2">Step 2: Submit Publication Fee</h3>
-                    <p class="mb-2">Send the payment receipt along with the copyright form to <a href="mailto:contactusijrpr@gmail.com" class="text-blue-500">contactusijrpr@gmail.com</a></p>
-                    <p class="mb-2"><strong>Do not forget to mention your Paper ID in the subject.</strong></p>
-                    <div class="mt-3">
-                        <p class="font-semibold">Publication Fee</p>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>International Authors: 17 US Dollars</li>
-                            <li>Indian Authors: Rs. 599</li>
-                            <li>E-Certificate: Free</li>
-                        </ul>
+                    <h3 class="font-bold text-lg mb-3">Publication Fee:</h3>
+                    <table class="w-full border-collapse border border-gray-300">
+                        <tbody>
+                            <tr>
+                                <td class="border border-gray-300 p-2"><strong>International Authors</strong></td>
+                                <td class="border border-gray-300 p-2"><strong>17 US Dollars</strong> <span class="text-blue-600"><a href="#">(Click Here to Pay)</a></span></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-2"><strong>Indian Authors</strong> <span class="text-sm text-gray-500">(Author Affiliation in Paper Must be in Indian Territory)</span></td>
+                                <td class="border border-gray-300 p-2"><strong>Rs. 599</strong> <span class="text-blue-600"><a href="#">(Click Here to Pay)</a></span></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-2"><strong>E-Certificate</strong></td>
+                                <td class="border border-gray-300 p-2"><strong>Free</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-3 bg-orange-50 border-l-4 border-orange-400 p-3 rounded text-sm text-orange-800">
+                        ⚠️ If PayPal is not supported in your country, please send us an email and we will provide you with alternative payment options.
                     </div>
                 </div>
                 <div class="bg-blue-50 p-4 rounded border border-blue-200">
@@ -198,9 +207,13 @@
                     @endif
                     @if($paper->certificate_link)
                     <p><strong>Certificate Link:</strong> <a href="{{ $paper->certificate_link }}" target="_blank" class="text-blue-500 hover:underline">{{ $paper->certificate_link }}</a></p>
+                    <div class="mt-2 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
+                        To split individual certificates: First, download the pdf file of the certificate on your computer. Go to <a href="https://www.ilovepdf.com/split_pdf#split,extract" target="_blank" class="text-blue-600 underline">https://www.ilovepdf.com/split_pdf#split,extract</a> — select pdf file button, and then select the downloaded pdf file of the certificate on your computer. Then click Split PDF. Then save the individual certificate on your computer.
+                    </div>
                     @endif
                 </div>
-                <p>You can also access it through: <strong>www.ijrpr.com → Menu → Archives → Current Issue</strong></p>
+                <p>I believe that our collaboration will help to accelerate the global knowledge creation and sharing one step further.</p>
+                <p>You can also access <strong>paper</strong> through: <strong>www.ijrpr.com → Menu → Archives → Current Issue</strong></p>
                 <div class="mt-6">
                     <p>With Warm Regards</p>
                     <p class="font-semibold">IJRPR Team</p>
@@ -227,12 +240,16 @@
                     @endif
                     @if($paper->certificate_link)
                     <p><strong>Certificate Link:</strong> <a href="{{ $paper->certificate_link }}" target="_blank" class="text-blue-500 hover:underline">{{ $paper->certificate_link }}</a></p>
+                    @else
+                    <p><strong>Certificate Link:</strong></p>
                     @endif
+                    <div class="mt-2 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
+                        To split individual certificates: First, download the pdf file of the certificate on your computer. Go to <a href="https://www.ilovepdf.com/split_pdf#split,extract" target="_blank" class="text-blue-600 underline">https://www.ilovepdf.com/split_pdf#split,extract</a> — select pdf file button, and then select the downloaded pdf file of the certificate on your computer. Then click Split PDF. Then save the individual certificate on your computer.
+                    </div>
                 </div>
-                <p>You can also access it through: <strong>www.ijrpr.com → Menu → Archives → Current Issue</strong></p>
-                <div class="bg-yellow-50 border border-yellow-200 p-3 rounded text-sm text-gray-600">
-                    <strong>Note:</strong> DOI has not been assigned to this paper yet. It will be updated once the DOI is allotted.
-                </div>
+                <p>I believe that our collaboration will help to accelerate the global knowledge creation and sharing one step further.</p>
+                <p>You can also access <strong>paper</strong> through: <strong>www.ijrpr.com → Menu → Archives → Current Issue</strong></p>
+                <p class="font-bold text-red-600">Note: The DOI for your paper has been applied for. It will be updated within 20 days, and we will notify you by email.</p>
                 <div class="mt-6">
                     <p>With Warm Regards</p>
                     <p class="font-semibold">IJRPR Team</p>
@@ -249,6 +266,7 @@
                 <p>Dear <strong>{{ $paper->author_name }},</strong></p>
                 <p>For any future communication you are advised to refer your <strong>Paper ID IJRPR-{{ $paper->id }}.</strong></p>
                 <div class="bg-white p-4 rounded border">
+                    <p>The DOI for the paper has been assigned and has also been updated within the paper.</p>
                     <p><strong>Paper Title:</strong> "{{ $paper->Title }}"</p>
                     @if($paper->Volume && $paper->Issue)
                     <p><strong>Published in:</strong> Volume {{ $paper->Volume }}, Issue {{ $paper->Issue }}</p>
@@ -262,10 +280,12 @@
                     @if($paper->certificate_link)
                     <p><strong>Certificate Link:</strong> <a href="{{ $paper->certificate_link }}" class="text-blue-600 underline" target="_blank">{{ $paper->certificate_link }}</a></p>
                     @endif
+                    <div class="mt-2 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
+                        To split individual certificates: First, download the pdf file of the certificate on your computer. Go to <a href="https://www.ilovepdf.com/split_pdf#split,extract" target="_blank" class="text-blue-600 underline">https://www.ilovepdf.com/split_pdf#split,extract</a> — select pdf file button, and then select the downloaded pdf file of the certificate on your computer. Then click Split PDF. Then save the individual certificate on your computer.
+                    </div>
                 </div>
-                <p class="text-sm text-gray-500 bg-blue-50 border border-blue-200 p-3 rounded">
-                    <strong>Note:</strong> If the DOI on the paper is not visible online, it may be due to a cached/old PDF in your browser. Press <strong>Ctrl + F5</strong> or open the link in a new browser to view the latest version.
-                </p>
+                <p>I believe that our collaboration will help to accelerate the global knowledge creation and sharing one step further.</p>
+                <p>You can also access <strong>paper</strong> through: <strong>www.ijrpr.com → Menu → Archives → Current Issue</strong></p>
                 <div class="mt-4">
                     <p>With Warm Regards</p>
                     <p class="font-semibold">IJRPR Team</p>

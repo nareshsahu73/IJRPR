@@ -105,6 +105,9 @@ class EmailTemplateResource extends Resource
                         'h2',
                         'h3',
                     ])
+                    ->extraInputAttributes([
+                        'style' => 'min-height: 250px;',
+                    ])
                     ->helperText('Available placeholders: {paper_title}, {author_name}, {email}, {position}, {country}, {affiliation}, {volume}, {issue}, {volume_issue}, {doi}, {file_link}, {certificate_link}, {fees_amount}, {reviewer_comments}, {publication_date}, {paper_id}, {paper_status}, {created_at} | Old format: {$ANSWER_field1} (Title), {$ANSWER_field2} (Author), {$ANSWER_field9} (Volume Issue), {$ANSWER_field20} (DOI), {$ANSWER_field21} (File link), {$ANSWER_field22} (Reviewer Comments), {$ANSWER_field24} (Certificate Link), {$ANSWER_core__submission_id} (Paper ID), {$ANSWER_core__submission_date} (Submission Date)'),
                     
                 Forms\Components\Textarea::make('text_template')
@@ -149,14 +152,44 @@ class EmailTemplateResource extends Resource
             ])
             ->actions([
                 Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                Actions\Action::make('deleteWithPassword')
+                    ->label('Delete')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->form([
+                        \Filament\Forms\Components\TextInput::make('delete_password')
+                            ->label('Delete Password')
+                            ->password()
+                            ->required(),
+                    ])
+                    ->modalHeading('Delete Email Template')
+                    ->modalDescription('This action cannot be undone. Enter the password to proceed.')
+                    ->modalSubmitActionLabel('Delete Template')
+                    ->action(function (array $data, $record) {
+                        $attempts = session()->get('delete_attempts', 0);
+                        if ($attempts >= 10) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Too many attempts. Access locked for this session.')
+                                ->danger()->send();
+                            return;
+                        }
+                        if ($data['delete_password'] !== env('DELETE_PASSWORD')) {
+                            session()->put('delete_attempts', $attempts + 1);
+                            $remaining = 10 - ($attempts + 1);
+                            \Filament\Notifications\Notification::make()
+                                ->title('Incorrect password. ' . $remaining . ' attempts remaining.')
+                                ->danger()->send();
+                            return;
+                        }
+                        session()->forget('delete_attempts');
+                        $record->delete();
+                        \Filament\Notifications\Notification::make()
+                            ->title('Email template deleted successfully.')
+                            ->success()->send();
+                    }),
             ])
             ->actionsColumnLabel('Actions')
-            ->bulkActions([
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
-                ]),
-            ])
+            ->bulkActions([])
             ->defaultSort('email_id', 'desc');
     }
 

@@ -22,7 +22,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('myweb')
+            ->path(env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42'))
             ->login(false)
             ->brandName('IJRPR')
             ->colors([

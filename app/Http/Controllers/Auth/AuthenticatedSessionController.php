@@ -34,7 +34,7 @@ class AuthenticatedSessionController extends Controller
                 $request->session()->regenerateToken();
                 
                 return back()->withErrors([
-                    'email' => 'Admin users must login through /myweb page.',
+                    'email' => 'Admin users must login through the admin panel.',
                 ])->onlyInput('email');
             }
             

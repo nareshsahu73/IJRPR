@@ -62,24 +62,21 @@
                         @php
                             $status = $paper->paper_status;
                             $badge = match($status) {
-                                'PaperAccepted', 'Paper Accepted'           => ['bg-green-100 text-green-700',  'Paper Accepted'],
-                                'PaperRejected', 'Paper Rejected'           => ['bg-red-100 text-red-700',      'Paper Rejected'],
-                                'PaperUnderReview', 'Under Review'          => ['bg-yellow-100 text-yellow-700','Under Review'],
-                                'PaperPublished', 'Paper Published'         => ['bg-blue-100 text-blue-700',    'Paper Published'],
-                                'PaperPublishedWithDOI'                     => ['bg-indigo-100 text-indigo-700','Paper Published with DOI'],
-                                'PaymentReceived'                           => ['bg-purple-100 text-purple-700','Payment Received'],
-                                'CommentsToUser'                            => ['bg-orange-100 text-orange-700','Comments to User'],
-                                'Paper Withdraw'                            => ['bg-gray-100 text-gray-600',    'Paper Withdraw'],
-                                default                                     => ['bg-gray-100 text-gray-600',    $status ?? 'Pending'],
+                                'PaperAccepted', 'Paper Accepted'  => ['bg-green-100 text-green-700',  'Paper Accepted'],
+                                'PaperRejected', 'Paper Rejected'  => ['bg-red-100 text-red-700',      'Paper Rejected'],
+                                'PaperUnderReview', 'Under Review' => ['bg-yellow-100 text-yellow-700','Under Review'],
+                                'PaperPublished'                   => ['bg-blue-100 text-blue-700',    'Paper Published'],
+                                'PaperPublishedWithoutDOI'         => ['bg-teal-100 text-teal-700',    'Published without DOI'],
+                                'PaperPublishedWithDOI'            => ['bg-indigo-100 text-indigo-700','Published with DOI'],
+                                'PaymentReceived'                  => ['bg-purple-100 text-purple-700','Payment Received'],
+                                'CommentsToUser'                   => ['bg-orange-100 text-orange-700','Comments to User'],
+                                'Paper Withdraw'                   => ['bg-gray-100 text-gray-600',    'Paper Withdraw'],
+                                default                            => ['bg-gray-100 text-gray-600',    $status ?? 'Pending'],
                             };
                         @endphp
-                        @if($status === 'PaperPublishedWithDOI')
-                        <span class="px-2 py-1 text-xs rounded-full bg-indigo-100 text-indigo-700">Paper Published with DOI</span>
-                        @else
                         <span class="px-2 py-1 text-xs rounded-full {{ $badge[0] }}">
                             {{ $badge[1] }}
                         </span>
-                        @endif
                     </td>
 
                     <td class="px-5 py-4 text-gray-600">

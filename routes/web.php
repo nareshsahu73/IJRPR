@@ -34,7 +34,7 @@ Route::middleware(['auth'])->group(function () {
 
 // Admin panel file download route (must be authenticated)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/myweb/papers/{id}/download', [PaperController::class, 'adminDownload'])->name('paper.download');
+    Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/papers/{id}/download', [PaperController::class, 'adminDownload'])->name('paper.download');
     
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
@@ -55,18 +55,18 @@ Route::middleware('guest')->group(function () {
 
 // Admin Two-Factor Authentication routes
 Route::middleware('guest')->group(function () {
-    Route::get('/myweb/login', function () {
+    Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/login', function () {
         return view('myweb.login');
     })->name('admin.login');
     
-    Route::post('/myweb/2fa/send', [\App\Http\Controllers\Admin\TwoFactorController::class, 'sendCode'])->name('admin.2fa.send');
-    Route::get('/myweb/2fa/verify', [\App\Http\Controllers\Admin\TwoFactorController::class, 'showVerifyForm'])->name('admin.2fa.verify');
-    Route::post('/myweb/2fa/verify', [\App\Http\Controllers\Admin\TwoFactorController::class, 'verifyCode'])->name('admin.2fa.verify.code');
-    Route::get('/myweb/2fa/verify-token/{token}', [\App\Http\Controllers\Admin\TwoFactorController::class, 'verifyToken'])->name('admin.2fa.verify.token');
+    Route::post('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/2fa/send', [\App\Http\Controllers\Admin\TwoFactorController::class, 'sendCode'])->name('admin.2fa.send');
+    Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/2fa/verify', [\App\Http\Controllers\Admin\TwoFactorController::class, 'showVerifyForm'])->name('admin.2fa.verify');
+    Route::post('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/2fa/verify', [\App\Http\Controllers\Admin\TwoFactorController::class, 'verifyCode'])->name('admin.2fa.verify.code');
+    Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/2fa/verify-token/{token}', [\App\Http\Controllers\Admin\TwoFactorController::class, 'verifyToken'])->name('admin.2fa.verify.token');
 });
 
 // Override Filament admin logout to redirect to home page
-Route::post('/myweb/logout', function (Illuminate\Http\Request $request) {
+Route::post('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/logout', function (Illuminate\Http\Request $request) {
     \Illuminate\Support\Facades\Auth::guard('web')->logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();

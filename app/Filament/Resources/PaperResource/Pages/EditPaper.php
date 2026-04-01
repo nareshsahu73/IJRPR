@@ -173,13 +173,18 @@ class EditPaper extends EditRecord
                         $htmlContent = $this->replacePlaceholders($template->html_template, $paper);
                         
                         Mail::send([], [], function ($message) use ($paper, $subject, $htmlContent, $template) {
+                            if ($template->email_reply_to === 'custom' && $template->custom_reply_to_email) {
+                                $fromEmail = $template->custom_reply_to_email;
+                                $fromName = $template->custom_reply_to_name ?: $template->custom_reply_to_email;
+                            } else {
+                                $fromEmail = config('mail.from.address');
+                                $fromName = config('mail.from.name');
+                            }
+
                             $message->to($paper->cer_author_name)
                                 ->subject($subject)
                                 ->html($htmlContent)
-                                ->from(
-                                    $template->custom_from_email ?: config('mail.from.address'),
-                                    $template->custom_from_name ?: config('mail.from.name')
-                                );
+                                ->from($fromEmail, $fromName);
 
                             // Attach plagiarism report only when paper status is PaperRejected
                             if ($paper->paper_status === 'PaperRejected' && $paper->plagiarism_report) {

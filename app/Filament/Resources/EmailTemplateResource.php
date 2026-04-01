@@ -60,21 +60,20 @@ class EmailTemplateResource extends Resource
                     ->default('custom')
                     ->reactive(),
                     
-                Forms\Components\TextInput::make('custom_from_name')
-                    ->label('Custom From Name')
-                    ->maxLength(100),
+                // Forms\Components\TextInput::make('custom_from_name')
+                //     ->label('Custom From Name')
+                //     ->maxLength(100)
+                //     ->visible(fn ($get) => $get('email_from') === 'custom'),
                     
-                Forms\Components\TextInput::make('custom_from_email')
-                    ->label('Custom From Email')
-                    ->email()
-                    ->maxLength(100),
+                // Forms\Components\TextInput::make('custom_from_email')
+                //     ->label('Custom From Email')
+                //     ->email()
+                //     ->maxLength(100)
+                //     ->visible(fn ($get) => $get('email_from') === 'custom'),
                     
                 Forms\Components\Select::make('email_reply_to')
                     ->label('Reply To')
                     ->options([
-                        'admin' => 'Admin',
-                        'client' => 'Client',
-                        'form_email_field' => 'Form Email Field',
                         'custom' => 'Custom',
                         'none' => 'None',
                     ])
@@ -139,9 +138,6 @@ class EmailTemplateResource extends Resource
                         'success' => 'enabled',
                         'danger' => 'disabled',
                     ]),
-                Tables\Columns\TextColumn::make('custom_from_email')
-                    ->label('From')
-                    ->default('-'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('email_status')

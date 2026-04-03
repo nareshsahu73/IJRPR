@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\SendPaperReceivedEmail;
 use App\Models\Paper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 class PaperController extends Controller
@@ -22,6 +23,20 @@ class PaperController extends Controller
 
     public function store(Request $request)
     {
+        // Verify reCAPTCHA v3
+        $recaptchaToken = $request->input('g-recaptcha-response');
+        if ($recaptchaToken) {
+            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret'   => env('RECAPTCHA_V3_SECRET_KEY'),
+                'response' => $recaptchaToken,
+                'remoteip' => $request->ip(),
+            ]);
+            $result = $response->json();
+            if (!($result['success'] ?? false) || ($result['score'] ?? 0) < 0.5) {
+                return back()->withErrors(['error' => 'reCAPTCHA verification failed. Please try again.'])->withInput();
+            }
+        }
+
         $validated = $request->validate([
             'Title' => 'required|string|max:300',
             'author_name' => 'required|string|max:500',

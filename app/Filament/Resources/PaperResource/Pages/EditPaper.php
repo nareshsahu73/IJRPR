@@ -184,7 +184,8 @@ class EditPaper extends EditRecord
                             $message->to($paper->cer_author_name)
                                 ->subject($subject)
                                 ->html($htmlContent)
-                                ->from($fromEmail, $fromName);
+                                ->from($fromEmail, $fromName)
+                                ->replyTo($fromEmail, $fromName);
 
                             // Attach plagiarism report only when paper status is PaperRejected
                             if ($paper->paper_status === 'PaperRejected' && $paper->plagiarism_report) {

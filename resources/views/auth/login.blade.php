@@ -126,6 +126,11 @@
                     </a>
                 </div>
 
+                <!-- <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_V2_SITE_KEY') }}"></div>
+                @error('g-recaptcha-response')
+                    <p class="error-text">{{ $message }}</p>
+                @enderror -->
+
                 <button type="submit" class="btn-primary">
                     Login
                 </button>
@@ -138,6 +143,7 @@
         </div>
     </div>
 
+    <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');

@@ -8,6 +8,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
@@ -19,6 +20,20 @@ class RegisteredUserController extends Controller
 
     public function store(Request $request)
     {
+        // // Verify reCAPTCHA v2
+        // $recaptcha = $request->input('g-recaptcha-response');
+        // if (!$recaptcha) {
+        //     return back()->withErrors(['g-recaptcha-response' => 'Please complete the reCAPTCHA.'])->withInput();
+        // }
+        // $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+        //     'secret'   => env('RECAPTCHA_V2_SECRET_KEY'),
+        //     'response' => $recaptcha,
+        //     'remoteip' => $request->ip(),
+        // ]);
+        // if (!($response->json()['success'] ?? false)) {
+        //     return back()->withErrors(['g-recaptcha-response' => 'reCAPTCHA verification failed. Please try again.'])->withInput();
+        // }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],

@@ -161,6 +161,11 @@
                     <div id="confirm-feedback" class="mt-2 text-sm hidden"></div>
                 </div>
 
+                <!-- <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_V2_SITE_KEY') }}"></div>
+                @error('g-recaptcha-response')
+                    <p class="error-text">{{ $message }}</p>
+                @enderror -->
+
                 <button type="submit" class="btn-primary">
                     Register
                 </button>
@@ -173,6 +178,7 @@
         </div>
     </div>
 
+    <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
     <script>
         function validateEmail(input) {
             const val = input.value.trim();

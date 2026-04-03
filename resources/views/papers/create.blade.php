@@ -16,6 +16,7 @@
 
     <form method="POST" action="{{ route('papers.store') }}" enctype="multipart/form-data" novalidate id="paperForm">
         @csrf
+        <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response-v3">
 
         <div class="mb-6">
             <label class="block text-gray-700 mb-2 font-bold">Paper Title *</label>
@@ -276,10 +277,20 @@ document.getElementById('paperForm').addEventListener('submit', function(e) {
 
     if (!valid) {
         e.preventDefault();
-        // Scroll to first error
         const firstError = document.querySelector('.border-red-500, [id$="-error"]:not(.hidden)');
         if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
     }
+
+    // V3 reCAPTCHA token generate before submit
+    e.preventDefault();
+    const form = this;
+    grecaptcha.ready(function() {
+        grecaptcha.execute('{{ env('RECAPTCHA_V3_SITE_KEY') }}', {action: 'submit_paper'}).then(function(token) {
+            document.getElementById('g-recaptcha-response-v3').value = token;
+            form.submit();
+        });
+    });
 });
 </script>
 @endsection

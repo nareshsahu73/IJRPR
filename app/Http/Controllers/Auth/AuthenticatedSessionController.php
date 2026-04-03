@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 
 class AuthenticatedSessionController extends Controller
@@ -19,6 +20,20 @@ class AuthenticatedSessionController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
+
+        // // Verify reCAPTCHA v2
+        // $recaptcha = $request->input('g-recaptcha-response');
+        // if (!$recaptcha) {
+        //     return back()->withErrors(['g-recaptcha-response' => 'Please complete the reCAPTCHA.'])->onlyInput('email');
+        // }
+        // $response = \Illuminate\Support\Facades\Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+        //     'secret'   => env('RECAPTCHA_V2_SECRET_KEY'),
+        //     'response' => $recaptcha,
+        //     'remoteip' => $request->ip(),
+        // ]);
+        // if (!($response->json()['success'] ?? false)) {
+        //     return back()->withErrors(['g-recaptcha-response' => 'reCAPTCHA verification failed. Please try again.'])->onlyInput('email');
+        // }
 
         // Clear any existing session before login
         $request->session()->flush();

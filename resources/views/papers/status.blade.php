@@ -72,11 +72,14 @@
                         <tbody>
                             <tr>
                                 <td class="border border-gray-300 p-2"><strong>International Authors</strong></td>
-                                <td class="border border-gray-300 p-2"><strong>17 US Dollars</strong> <span class="text-blue-600"><a href="#">(Click Here to Pay)</a></span></td>
+                                <td class="border border-gray-300 p-2">
+                                    <strong>17 US Dollars</strong> <span class="text-blue-600"><a href="https://ijrpr.com/publicationcharges_international_blank.php">(Click Here to Pay)</a></span><br>
+                                    <span class="text-sm text-gray-700">If PayPal is not supported in your country, please send us an email and we will provide you with alternative payment options.</span>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="border border-gray-300 p-2"><strong>Indian Authors</strong> <span class="text-sm text-gray-500">(Author Affiliation in Paper Must be in Indian Territory)</span></td>
-                                <td class="border border-gray-300 p-2"><strong>Rs. 599</strong> <span class="text-blue-600"><a href="#">(Click Here to Pay)</a></span></td>
+                                <td class="border border-gray-300 p-2"><strong>Rs. 599</strong> <span class="text-blue-600"><a href="https://ijrpr.com/publication_charges_hdfc.php">(Click Here to Pay)</a></span></td>
                             </tr>
                             <tr>
                                 <td class="border border-gray-300 p-2"><strong>E-Certificate</strong></td>
@@ -84,9 +87,6 @@
                             </tr>
                         </tbody>
                     </table>
-                    <div class="mt-3 bg-orange-50 border-l-4 border-orange-400 p-3 rounded text-sm text-orange-800">
-                        ⚠️ If PayPal is not supported in your country, please send us an email and we will provide you with alternative payment options.
-                    </div>
                 </div>
                 <div class="bg-blue-50 p-4 rounded border border-blue-200">
                     <h3 class="font-bold text-lg mb-2">Publication Process</h3>

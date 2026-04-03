@@ -6,6 +6,7 @@
     <title>{{ config('app.name') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_V3_SITE_KEY') }}"></script>
     <script>
         function confirmLogout() {
             // Check if user is on paper submission form

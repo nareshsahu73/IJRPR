@@ -142,6 +142,11 @@
                         ← Back to home
                     </a>
                 </div>
+                <div class="text-center mt-2">
+                    <a href="{{ route('admin.password.request') }}" class="text-sm text-amber-600 hover:text-amber-700">
+                        Forgot Password?
+                    </a>
+                </div>
             </form>
 
             <div class="mt-6 text-center">

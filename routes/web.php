@@ -53,7 +53,13 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'resetPassword'])->name('password.update');
 });
 
-// Admin Two-Factor Authentication routes
+// Admin Password Reset (hidden route - file: auth_service.php)
+Route::middleware('guest')->group(function () {
+    Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/account-recovery', [\App\Http\Controllers\Auth\auth_service::class, 'showForm'])->name('admin.password.request');
+    Route::post('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/account-recovery', [\App\Http\Controllers\Auth\auth_service::class, 'sendResetLink'])->name('admin.password.email');
+    Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/account-recovery/reset/{token}', [\App\Http\Controllers\Auth\auth_service::class, 'showResetForm'])->name('admin.password.reset.form');
+    Route::post('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/account-recovery/reset', [\App\Http\Controllers\Auth\auth_service::class, 'resetPassword'])->name('admin.password.update');
+});
 Route::middleware('guest')->group(function () {
     Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/login', function () {
         return view('myweb.login');

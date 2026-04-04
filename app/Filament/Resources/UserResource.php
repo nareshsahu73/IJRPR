@@ -62,7 +62,10 @@ class UserResource extends Resource
                     ->maxLength(255)
                     ->label('Password')
                     ->extraInputAttributes(['autocomplete' => 'new-password'])
-                    ->helperText('Leave blank to keep current password (when editing)'),
+                    ->disabled(fn ($record) => $record !== null && $record->is_admin)
+                    ->helperText(fn ($record) => ($record !== null && $record->is_admin)
+                        ? 'Admin password can only be changed via the Forgot Password link on login page.'
+                        : 'Leave blank to keep current password (when editing).'),
                 Forms\Components\TextInput::make('password_confirmation')
                     ->password()
                     ->revealable()

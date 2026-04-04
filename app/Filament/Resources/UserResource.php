@@ -61,6 +61,7 @@ class UserResource extends Resource
                     ->dehydrated(fn ($state) => filled($state))
                     ->maxLength(255)
                     ->label('Password')
+                    ->extraInputAttributes(['autocomplete' => 'new-password'])
                     ->helperText('Leave blank to keep current password (when editing)'),
                 Forms\Components\TextInput::make('password_confirmation')
                     ->password()
@@ -70,20 +71,14 @@ class UserResource extends Resource
                     ->maxLength(255)
                     ->label('Confirm Password')
                     ->same('password')
+                    ->extraInputAttributes(['autocomplete' => 'new-password'])
                     ->helperText('Must match the password field'),
                 Forms\Components\Toggle::make('is_staff')
                     ->label('Staff')
-                    ->helperText('Staff users cannot be given admin access')
+                    ->helperText('Staff users have limited admin panel access')
                     ->onColor('info')
-                    ->offColor('gray')
-                    ->reactive(),
-                Forms\Components\Toggle::make('is_admin')
-                    ->label('Admin Access')
-                    ->helperText('Enable to give this user admin panel access')
-                    ->onColor('success')
-                    ->offColor('danger')
-                    ->disabled(fn ($get) => (bool) $get('is_staff'))
-                    ->dehydrated(true),
+                    ->offColor('gray'),
+                // is_admin toggle removed — admin users are set directly in database only
                 Forms\Components\Toggle::make('share_credentials')
                     ->label('Share credentials to user by email')
                     ->helperText('If checked, email and password will be included in the welcome email')
@@ -96,14 +91,12 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->where('is_admin', 0))
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\IconColumn::make('is_admin')
-                    ->boolean()
-                    ->label('Admin'),
                 Tables\Columns\IconColumn::make('is_staff')
                     ->boolean()
                     ->label('Staff'),
@@ -112,12 +105,6 @@ class UserResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('is_admin')
-                    ->label('User Type')
-                    ->options([
-                        '1' => 'Admin',
-                        '0' => 'Normal User',
-                    ]),
                 Tables\Filters\SelectFilter::make('is_staff')
                     ->label('Staff')
                     ->options([

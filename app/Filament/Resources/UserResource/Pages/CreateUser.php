@@ -25,7 +25,7 @@ class CreateUser extends CreateRecord
         }
 
         $data['is_staff'] = (bool) ($data['is_staff'] ?? false);
-        $data['is_admin'] = $data['is_staff'] ? false : (bool) ($data['is_admin'] ?? false);
+        $data['is_admin'] = false; // Admin can only be set directly in database
 
         unset($data['password_confirmation'], $data['share_credentials']);
 
@@ -48,7 +48,7 @@ class CreateUser extends CreateRecord
 
         $name     = $user->name ?? 'User';
         $email    = $user->email;
-        $loginUrl = url('/myweb/login');
+        $loginUrl = url('/login');
 
         try {
             Mail::send([], [], function ($message) use ($name, $email, $loginUrl, $plainPassword, $shareCredentials, $isNew) {

@@ -30,14 +30,14 @@ class Settings extends Page implements HasForms
     public function mount(): void
     {
         $this->form->fill([
-            'mail_mailer' => config('mail.mailers.smtp.transport', 'smtp'),
-            'mail_host' => config('mail.mailers.smtp.host', 'smtp.gmail.com'),
-            'mail_port' => config('mail.mailers.smtp.port', '587'),
-            'mail_username' => config('mail.mailers.smtp.username', ''),
-            'mail_password' => config('mail.mailers.smtp.password', ''),
-            'mail_encryption' => config('mail.mailers.smtp.encryption', 'tls'),
+            'mail_mailer'       => config('mail.mailers.smtp.transport', 'smtp'),
+            'mail_host'         => config('mail.mailers.smtp.host', 'smtp.gmail.com'),
+            'mail_port'         => config('mail.mailers.smtp.port', '587'),
+            'mail_username'     => config('mail.mailers.smtp.username', ''),
+            'mail_password'     => '', // never pre-fill password
+            'mail_encryption'   => config('mail.mailers.smtp.encryption', 'tls'),
             'mail_from_address' => config('mail.from.address', 'noreply@example.com'),
-            'mail_from_name' => config('mail.from.name', 'IJRPR'),
+            'mail_from_name'    => config('mail.from.name', 'IJRPR'),
         ]);
     }
 
@@ -77,8 +77,7 @@ class Settings extends Page implements HasForms
                     ->label('SMTP Password')
                     ->password()
                     ->revealable()
-                    ->required()
-                    ->placeholder('Your app password'),
+                    ->placeholder('password'),
 
                 Forms\Components\Select::make('mail_encryption')
                     ->label('Encryption')
@@ -112,15 +111,19 @@ class Settings extends Page implements HasForms
         $envContent = file_get_contents(base_path('.env'));
 
         $envVars = [
-            'MAIL_MAILER' => $data['mail_mailer'],
-            'MAIL_HOST' => $data['mail_host'],
-            'MAIL_PORT' => $data['mail_port'],
-            'MAIL_USERNAME' => $data['mail_username'],
-            'MAIL_PASSWORD' => $data['mail_password'],
-            'MAIL_ENCRYPTION' => $data['mail_encryption'],
+            'MAIL_MAILER'       => $data['mail_mailer'],
+            'MAIL_HOST'         => $data['mail_host'],
+            'MAIL_PORT'         => $data['mail_port'],
+            'MAIL_USERNAME'     => $data['mail_username'],
+            'MAIL_ENCRYPTION'   => $data['mail_encryption'],
             'MAIL_FROM_ADDRESS' => $data['mail_from_address'],
-            'MAIL_FROM_NAME' => '"' . $data['mail_from_name'] . '"',
+            'MAIL_FROM_NAME'    => '"' . $data['mail_from_name'] . '"',
         ];
+
+        // Only update password if a new one was entered
+        if (!empty($data['mail_password'])) {
+            $envVars['MAIL_PASSWORD'] = $data['mail_password'];
+        }
 
         foreach ($envVars as $key => $value) {
             $pattern = "/^{$key}=.*/m";

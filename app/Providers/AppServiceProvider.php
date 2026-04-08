@@ -21,5 +21,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::before(fn ($user) => $user->is_admin ? true : null);
+
+        // Staff cannot delete users — enforced at route/gate level
+        Gate::define('delete-user', fn ($user) => $user->is_admin === true);
+
+        // Block staff from deleting via any route
+        \Illuminate\Support\Facades\Gate::policy(\App\Models\User::class, \App\Policies\UserPolicy::class);
     }
 }

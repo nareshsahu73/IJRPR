@@ -57,8 +57,11 @@ Route::middleware('guest')->group(function () {
 Route::middleware('guest')->group(function () {
     Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/account-recovery', [\App\Http\Controllers\Auth\auth_service::class, 'showForm'])->name('admin.password.request');
     Route::post('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/account-recovery', [\App\Http\Controllers\Auth\auth_service::class, 'sendResetLink'])->name('admin.password.email');
+    // Token consumed here → redirects to clean URL
     Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/account-recovery/reset/{token}', [\App\Http\Controllers\Auth\auth_service::class, 'showResetForm'])->name('admin.password.reset.form');
-    Route::post('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/account-recovery/reset', [\App\Http\Controllers\Auth\auth_service::class, 'resetPassword'])->name('admin.password.update');
+    // Clean URL — no token in browser history
+    Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/account-recovery/set-password', [\App\Http\Controllers\Auth\auth_service::class, 'showSetPasswordForm'])->name('admin.password.set');
+    Route::post('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/account-recovery/set-password', [\App\Http\Controllers\Auth\auth_service::class, 'resetPassword'])->name('admin.password.update');
 });
 Route::middleware('guest')->group(function () {
     Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/login', function () {
@@ -70,6 +73,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/2fa/verify', [\App\Http\Controllers\Admin\TwoFactorController::class, 'verifyCode'])->name('admin.2fa.verify.code');
     Route::get('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/2fa/verify-token/{token}', [\App\Http\Controllers\Admin\TwoFactorController::class, 'verifyToken'])->name('admin.2fa.verify.token');
 });
+
+// Staff Password Reset Link (admin triggers)
+Route::middleware(['auth'])->post('/staff-password-reset/send', [\App\Http\Controllers\Admin\StaffPasswordResetController::class, 'send'])->name('staff.password.reset.send');
 
 // Override Filament admin logout to redirect to home page
 Route::post('/' . env('ADMIN_PANEL_PATH', 'myweb/blue_sky_42') . '/logout', function (Illuminate\Http\Request $request) {

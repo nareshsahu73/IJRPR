@@ -22,6 +22,31 @@ class EmailTemplateResource extends Resource
     
     protected static ?int $navigationSort = 4;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->is_admin === true;
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->is_admin === true;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->is_admin === true;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()?->is_admin === true;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()?->is_admin === true;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema

@@ -29,6 +29,6 @@ class PaperPolicy
 
     public function delete(User $user, Paper $paper): bool
     {
-        return $user->id === $paper->user_id || $user->is_admin || $user->is_staff;
+        return $user->is_admin === true;
     }
 }

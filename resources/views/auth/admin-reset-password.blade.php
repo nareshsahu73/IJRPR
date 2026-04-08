@@ -31,8 +31,6 @@
 
             <form method="POST" action="{{ route('admin.password.update') }}" class="space-y-5">
                 @csrf
-                <input type="hidden" name="token" value="{{ $token }}">
-                <input type="hidden" name="email" value="{{ $email }}">
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>

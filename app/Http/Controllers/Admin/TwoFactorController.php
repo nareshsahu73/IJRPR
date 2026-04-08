@@ -33,11 +33,13 @@ class TwoFactorController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !password_verify($request->password, $user->password)) {
-            return back()->withErrors(['email' => 'Invalid credentials']);
+            \Illuminate\Support\Facades\RateLimiter::hit($key, 900);
+            sleep(1); // Throttle failed attempts
+            return back()->withErrors(['email' => 'If an account is associated with this email,you will receive a link.']);
         }
 
         if (!$user->is_admin && !$user->is_staff) {
-            return back()->withErrors(['email' => 'Only admin/staff users can login here']);
+            return back()->withErrors(['email' => 'If an account is associated with this email,you will receive a link.']);
         }
 
         $code  = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);

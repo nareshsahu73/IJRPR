@@ -23,17 +23,19 @@ class PaperController extends Controller
 
     public function store(Request $request)
     {
-        // Verify reCAPTCHA v3
-        $recaptchaToken = $request->input('g-recaptcha-response');
-        if ($recaptchaToken) {
-            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret'   => env('RECAPTCHA_V3_SECRET_KEY'),
-                'response' => $recaptchaToken,
-                'remoteip' => $request->ip(),
-            ]);
-            $result = $response->json();
-            if (!($result['success'] ?? false) || ($result['score'] ?? 0) < 0.5) {
-                return back()->withErrors(['error' => 'reCAPTCHA verification failed. Please try again.'])->withInput();
+        // Verify reCAPTCHA v3 (skip on local environment)
+        if (app()->environment('production')) {
+            $recaptchaToken = $request->input('g-recaptcha-response');
+            if ($recaptchaToken) {
+                $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                    'secret'   => env('RECAPTCHA_V3_SECRET_KEY'),
+                    'response' => $recaptchaToken,
+                    'remoteip' => $request->ip(),
+                ]);
+                $result = $response->json();
+                if (!($result['success'] ?? false) || ($result['score'] ?? 0) < 0.5) {
+                    return back()->withErrors(['error' => 'reCAPTCHA verification failed. Please try again.'])->withInput();
+                }
             }
         }
 

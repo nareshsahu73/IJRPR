@@ -20,6 +20,11 @@ class Settings extends Page implements HasForms
     
     protected static ?int $navigationSort = 3;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->is_admin === true;
+    }
+
     public ?array $data = [];
     
     public function getView(): string
@@ -29,6 +34,9 @@ class Settings extends Page implements HasForms
 
     public function mount(): void
     {
+        if (!auth()->user()?->is_admin) {
+            abort(403);
+        }
         $this->form->fill([
             'mail_mailer'       => config('mail.mailers.smtp.transport', 'smtp'),
             'mail_host'         => config('mail.mailers.smtp.host', 'smtp.gmail.com'),
@@ -77,7 +85,12 @@ class Settings extends Page implements HasForms
                     ->label('SMTP Password')
                     ->password()
                     ->revealable()
-                    ->placeholder('password'),
+                    ->placeholder('SMTP Password')
+                    ->extraInputAttributes([
+                        'autocomplete' => 'new-password',
+                        'data-lpignore' => 'true',
+                        'data-form-type' => 'other',
+                    ]),
 
                 Forms\Components\Select::make('mail_encryption')
                     ->label('Encryption')

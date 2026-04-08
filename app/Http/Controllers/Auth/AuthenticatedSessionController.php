@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Sleep;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -16,48 +18,67 @@ class AuthenticatedSessionController extends Controller
 
     public function store(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $request->validate([
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        // // Verify reCAPTCHA v2
-        // $recaptcha = $request->input('g-recaptcha-response');
-        // if (!$recaptcha) {
-        //     return back()->withErrors(['g-recaptcha-response' => 'Please complete the reCAPTCHA.'])->onlyInput('email');
-        // }
-        // $response = \Illuminate\Support\Facades\Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-        //     'secret'   => env('RECAPTCHA_V2_SECRET_KEY'),
-        //     'response' => $recaptcha,
-        //     'remoteip' => $request->ip(),
-        // ]);
-        // if (!($response->json()['success'] ?? false)) {
-        //     return back()->withErrors(['g-recaptcha-response' => 'reCAPTCHA verification failed. Please try again.'])->onlyInput('email');
-        // }
+        // Rate limiting — 5 attempts per IP per 15 minutes
+        $ipKey = 'login:ip:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($ipKey, 5)) {
+            $seconds = RateLimiter::availableIn($ipKey);
+            return back()->withErrors([
+                'email' => 'Too many login attempts. Please try again in ' . ceil($seconds / 60) . ' minute(s).',
+            ])->onlyInput('email');
+        }
+
+        // reCAPTCHA v2 verification (skip on local environment)
+        if (app()->environment('production')) {
+            $recaptcha = $request->input('g-recaptcha-response');
+            if (!$recaptcha) {
+                return back()->withErrors(['g-recaptcha-response' => 'Please complete the reCAPTCHA.'])->onlyInput('email');
+            }
+            $recaptchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret'   => env('RECAPTCHA_V2_SECRET_KEY'),
+                'response' => $recaptcha,
+                'remoteip' => $request->ip(),
+            ]);
+            if (!($recaptchaResponse->json()['success'] ?? false)) {
+                return back()->withErrors(['g-recaptcha-response' => 'reCAPTCHA verification failed. Please try again.'])->onlyInput('email');
+            }
+        }
 
         // Clear any existing session before login
         $request->session()->flush();
-        
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            // Regenerate session to prevent fixation attacks
+
+        if (Auth::attempt([
+            'email'    => $request->email,
+            'password' => $request->password,
+        ], $request->boolean('remember'))) {
+
+            RateLimiter::clear($ipKey);
             $request->session()->regenerate();
-            
-            // Check if user is admin - block admin from user login
+
+            // Block admin from user login
             if (auth()->user()->is_admin) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
-                
                 return back()->withErrors([
-                    'email' => 'Admin users must login through the admin panel.',
+                    'email' => 'If an account is associated with this email,you will receive a link.',
                 ])->onlyInput('email');
             }
-            
+
             return redirect()->intended('dashboard');
         }
 
+        // Throttle failed attempts — slow down brute force
+        RateLimiter::hit($ipKey, 900);
+        sleep(1);
+
+        // Generic error — never reveal which field was wrong
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'email' => 'If an account is associated with this email,you will receive a link.',
         ])->onlyInput('email');
     }
 

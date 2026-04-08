@@ -40,9 +40,11 @@ class auth_service extends Controller
             'email' => 'required|email',
         ]);
 
-        // Only allow admin users
+        // Only allow admin or staff users
         $user = User::where('email', $request->email)
-            ->where('is_admin', 1)
+            ->where(function ($q) {
+                $q->where('is_admin', 1)->orWhere('is_staff', 1);
+            })
             ->first();
 
         // Always show same message to prevent email enumeration
@@ -87,17 +89,54 @@ class auth_service extends Controller
 
     public function showResetForm(Request $request, $token)
     {
-        return view('auth.admin-reset-password', [
-            'token' => $token,
-            'email' => $request->query('email', ''),
-        ]);
+        // Verify token immediately and store in session (URL masking)
+        $email = $request->query('email', '');
+
+        $record = DB::table('password_reset_tokens')
+            ->where('token', $token)
+            ->where('email', $email)
+            ->first();
+
+        if (!$record) {
+            return redirect()->route('admin.password.request')
+                ->withErrors(['email' => 'Invalid or expired reset link.']);
+        }
+
+        if (now()->diffInMinutes($record->created_at) > 60) {
+            DB::table('password_reset_tokens')->where('token', $token)->delete();
+            return redirect()->route('admin.password.request')
+                ->withErrors(['email' => 'Reset link has expired. Please request a new one.']);
+        }
+
+        // Store in session and redirect to clean URL (token removed from browser history)
+        session(['admin_reset_email' => $email, 'admin_reset_token' => $token]);
+
+        return redirect()->route('admin.password.set');
+    }
+
+    public function showSetPasswordForm()
+    {
+        // Must have valid session
+        if (!session('admin_reset_token') || !session('admin_reset_email')) {
+            return redirect()->route('admin.password.request')
+                ->withErrors(['email' => 'Invalid or expired session. Please request a new reset link.']);
+        }
+
+        return view('auth.admin-reset-password');
     }
 
     public function resetPassword(Request $request)
     {
+        // Get token and email from session (not from URL)
+        $token = session('admin_reset_token');
+        $email = session('admin_reset_email');
+
+        if (!$token || !$email) {
+            return redirect()->route('admin.password.request')
+                ->withErrors(['email' => 'Session expired. Please request a new reset link.']);
+        }
+
         $request->validate([
-            'token'    => 'required',
-            'email'    => 'required|email',
             'password' => [
                 'required', 'confirmed', 'min:15',
                 'regex:/[a-z]/', 'regex:/[A-Z]/',
@@ -109,29 +148,40 @@ class auth_service extends Controller
         ]);
 
         $record = DB::table('password_reset_tokens')
-            ->where('email', $request->email)
-            ->where('token', $request->token)
+            ->where('email', $email)
+            ->where('token', $token)
             ->first();
 
         if (!$record) {
-            return back()->withErrors(['email' => 'Invalid reset token.']);
+            session()->forget(['admin_reset_token', 'admin_reset_email']);
+            return redirect()->route('admin.password.request')
+                ->withErrors(['email' => 'Invalid reset token.']);
         }
 
         if (now()->diffInMinutes($record->created_at) > 60) {
-            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
-            return back()->withErrors(['email' => 'Token expired. Please request a new one.']);
+            DB::table('password_reset_tokens')->where('email', $email)->delete();
+            session()->forget(['admin_reset_token', 'admin_reset_email']);
+            return redirect()->route('admin.password.request')
+                ->withErrors(['email' => 'Token expired. Please request a new one.']);
         }
 
-        $user = User::where('email', $request->email)->where('is_admin', 1)->first();
+        $user = User::where('email', $email)
+            ->where(function ($q) {
+                $q->where('is_admin', 1)->orWhere('is_staff', 1);
+            })
+            ->first();
 
         if (!$user) {
-            return back()->withErrors(['email' => 'Unauthorized.']);
+            return redirect()->route('admin.password.request')
+                ->withErrors(['email' => 'Unauthorized.']);
         }
 
         $user->password = bcrypt($request->password);
         $user->save();
 
-        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+        // Delete token and clear session
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
+        session()->forget(['admin_reset_token', 'admin_reset_email']);
 
         return redirect()->route('admin.login')->with('status', 'Password reset successfully. Please login.');
     }
